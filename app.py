@@ -5,8 +5,15 @@ import logging
 import math
 import re
 import os
+from transformers import pipeline
+import functools
 
 app = Flask(__name__)
+
+@functools.lru_cache(maxsize=1)
+def get_translator():
+    """Ленивая инициализация переводчика"""
+    return pipeline("translation", model="Helsinki-NLP/opus-mt-ru-en")
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -74,13 +81,25 @@ def translate_to_english(text):
     
     # Нормализация входного текста
     normalized_text = normalize_text(text)
+    words = normalized_text.split()
     
-    # Поиск и перевод составных терминов
-    translated_text = normalized_text
-    for ru_term, en_term in sorted(translations.items(), key=lambda x: len(x[0]), reverse=True):
-        translated_text = translated_text.replace(normalize_text(ru_term), en_term)
+    # Проверяем каждое слово в словаре
+    translated_words = []
+    for word in words:
+        # Если слово есть в словаре известных терминов
+        if word in translations:
+            translated_words.append(translations[word])
+        else:
+            # Используем HuggingFace для перевода
+            try:
+                translator = get_translator()
+                translation = translator(word)
+                translated_words.append(translation[0]['translation_text'].lower())
+            except Exception as e:
+                logger.error(f"Translation error: {str(e)}")
+                translated_words.append(word)
     
-    return translated_text
+    return ' '.join(translated_words)
 
 @app.route('/')
 def index():
@@ -143,8 +162,17 @@ def search():
             }), 400
 
         # Перевод и нормализация запроса
-        english_query = translate_to_english(query)
-        search_query = f"site:arxiv.org {english_query}"
+        try:
+            english_query = translate_to_english(query)
+            logger.info(f"Translated query: {query} -> {english_query}")
+        except Exception as e:
+            logger.error(f"Translation failed: {str(e)}")
+            return jsonify({
+                'status': 'error',
+                'error': 'Ошибка при переводе запроса'
+            }), 500
+            
+        search_query = f"site:arxiv.org AND {' AND '.join(english_query.split())}"
         
         if start_date and end_date:
             search_query += f" after:{start_date} before:{end_date}"
