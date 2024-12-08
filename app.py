@@ -138,7 +138,7 @@ def search():
                     "query": search_query,
                     "search_depth": "advanced",
                     "include_domains": ["arxiv.org"],
-                    "max_results": 20
+                    "max_results": 100
                 },
                 timeout=10
             )
@@ -149,11 +149,16 @@ def search():
             # Обработка результатов
             results = []
             for result in data.get('results', []):
-                pub_date = result.get('published_date', '')
-                if pub_date:
+                # Извлекаем дату из URL статьи, так как Tavily может не возвращать дату
+                url_parts = result.get('url', '').split('/')
+                if 'arxiv.org' in result.get('url', '') and len(url_parts) > 4:
                     try:
-                        pub_date = datetime.strptime(pub_date.split('T')[0], '%Y-%m-%d').strftime('%d.%m.%Y')
-                    except (ValueError, AttributeError):
+                        # URL format: https://arxiv.org/abs/YYMM.NNNNN
+                        arxiv_id = url_parts[-1]
+                        year = '20' + arxiv_id[:2]
+                        month = arxiv_id[2:4]
+                        pub_date = f"{month}.{year}"
+                    except:
                         pub_date = 'Дата не указана'
                 else:
                     pub_date = 'Дата не указана'
