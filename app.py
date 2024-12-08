@@ -130,15 +130,15 @@ def search():
 
         # Выполнение запроса к API
         try:
-            response = requests.get(
+            logger.debug(f"Sending POST request to Tavily API with query: {search_query}")
+            response = requests.post(
                 "https://api.tavily.com/search",
-                params={
+                json={
                     "api_key": TAVILY_API_KEY,
                     "query": search_query,
                     "search_depth": "advanced",
                     "include_domains": ["arxiv.org"],
-                    "max_results": 20,
-                    "page": page
+                    "max_results": 20
                 },
                 timeout=10
             )
@@ -146,6 +146,7 @@ def search():
             response.raise_for_status()
             data = response.json()
             
+            # Обработка результатов
             results = []
             for result in data.get('results', []):
                 pub_date = result.get('published_date', 'Дата не указана')
@@ -156,12 +157,14 @@ def search():
                     'published_date': pub_date
                 })
             
-            # Реализация пагинации
-            total_results = len(results)
+            # Реализация пагинации на стороне сервера
             results_per_page = 20
+            total_results = len(results)
             total_pages = math.ceil(total_results / results_per_page)
             start_idx = (page - 1) * results_per_page
             end_idx = start_idx + results_per_page
+            
+            logger.debug(f"Total results: {total_results}, Page: {page}, Results per page: {results_per_page}")
             
             return jsonify({
                 'status': 'success',
