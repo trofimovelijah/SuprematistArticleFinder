@@ -130,10 +130,10 @@ def search():
 
         # Выполнение запроса к API
         try:
-            logger.debug(f"Sending POST request to Tavily API with query: {search_query}")
-            response = requests.post(
+            logger.debug(f"Sending GET request to Tavily API with query: {search_query}")
+            response = requests.get(
                 "https://api.tavily.com/search",
-                json={
+                params={
                     "api_key": TAVILY_API_KEY,
                     "query": search_query,
                     "search_depth": "advanced",
@@ -149,7 +149,7 @@ def search():
             # Обработка результатов
             results = []
             for result in data.get('results', []):
-                pub_date = result.get('published_date', 'Дата не указана')
+                pub_date = result.get('published_date', 'Дата не указана').split('T')[0] if result.get('published_date') else 'Дата не указана'
                 results.append({
                     'title': result.get('title'),
                     'url': result.get('url'),

@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return `
             <div class="result-item">
                 <h3><a href="${result.url}" target="_blank">${result.title}</a></h3>
-                <div class="result-date">${result.published_date}</div>
-                <p>${result.snippet}</p>
+                <div class="result-date">Дата публикации: ${result.published_date || 'Не указана'}</div>
+                <p class="result-snippet">${result.snippet || 'Описание отсутствует'}</p>
             </div>
         `;
     }

@@ -156,8 +156,15 @@ body {
 }
 
 .result-date {
-    color: var(--accent-blue);
+    color: #666;
     font-size: 0.9rem;
+    margin: 0.5rem 0;
+}
+
+.result-snippet {
+    color: #333;
+    margin: 0.5rem 0;
+    line-height: 1.4;
 }
 
 .pagination-container {
