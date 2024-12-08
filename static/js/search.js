@@ -41,8 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!query) return;
 
         const searchParams = new URLSearchParams({
-            q: query,
-            page: currentPage
+            q: query
         });
 
         if (startDate.value) searchParams.append('start_date', startDate.value);

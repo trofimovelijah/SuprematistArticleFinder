@@ -130,10 +130,10 @@ def search():
 
         # Выполнение запроса к API
         try:
-            logger.debug(f"Sending GET request to Tavily API with query: {search_query}")
-            response = requests.get(
+            logger.debug(f"Sending POST request to Tavily API with query: {search_query}")
+            response = requests.post(
                 "https://api.tavily.com/search",
-                params={
+                json={
                     "api_key": TAVILY_API_KEY,
                     "query": search_query,
                     "search_depth": "advanced",
