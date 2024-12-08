@@ -149,11 +149,19 @@ def search():
             # Обработка результатов
             results = []
             for result in data.get('results', []):
-                pub_date = result.get('published_date', 'Дата не указана').split('T')[0] if result.get('published_date') else 'Дата не указана'
+                pub_date = result.get('published_date', '')
+                if pub_date:
+                    try:
+                        pub_date = datetime.strptime(pub_date.split('T')[0], '%Y-%m-%d').strftime('%d.%m.%Y')
+                    except (ValueError, AttributeError):
+                        pub_date = 'Дата не указана'
+                else:
+                    pub_date = 'Дата не указана'
+
                 results.append({
-                    'title': result.get('title'),
-                    'url': result.get('url'),
-                    'snippet': result.get('snippet'),
+                    'title': result.get('title', 'Без названия'),
+                    'url': result.get('url', ''),
+                    'snippet': result.get('snippet', 'Описание отсутствует'),
                     'published_date': pub_date
                 })
             

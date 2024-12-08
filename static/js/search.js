@@ -8,40 +8,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const paginationContainer = document.getElementById('pagination');
 
     let currentPage = 1;
-    const resultsPerPage = 20;
-
-    function createResultItem(result) {
-        return `
-            <div class="result-item">
-                <h3><a href="${result.url}" target="_blank">${result.title}</a></h3>
-                <div class="result-date">Дата публикации: ${result.published_date || 'Не указана'}</div>
-                <p class="result-snippet">${result.snippet || 'Описание отсутствует'}</p>
-            </div>
-        `;
-    }
-
-    function createPagination(total) {
-        const totalPages = Math.ceil(total / resultsPerPage);
-        let paginationHtml = '';
-        
-        for (let i = 1; i <= totalPages; i++) {
-            paginationHtml += `
-                <button class="page-button ${i === currentPage ? 'active' : ''}" 
-                        onclick="changePage(${i})">
-                    ${i}
-                </button>
-            `;
-        }
-        
-        paginationContainer.innerHTML = paginationHtml;
-    }
 
     function performSearch() {
         const query = searchInput.value.trim();
         if (!query) return;
 
         const searchParams = new URLSearchParams({
-            q: query
+            q: query,
+            page: currentPage
         });
 
         if (startDate.value) searchParams.append('start_date', startDate.value);
@@ -58,15 +32,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 totalResults.textContent = `Найдено результатов: ${data.total}`;
                 
                 resultsContainer.innerHTML = data.results
-                    .map(createResultItem)
+                    .map(result => {
+                        const date = result.published_date || 'Дата не указана';
+                        const snippet = result.snippet || 'Описание отсутствует';
+                        return `
+                            <div class="result-item">
+                                <h3><a href="${result.url}" target="_blank">${result.title}</a></h3>
+                                <div class="result-date">Дата публикации: ${date}</div>
+                                <p class="result-snippet">${snippet}</p>
+                            </div>
+                        `;
+                    })
                     .join('');
 
-                createPagination(data.total);
+                // Обновить пагинацию
+                createPagination(data.total_pages);
             })
             .catch(error => {
                 console.error('Error:', error);
                 resultsContainer.innerHTML = '<div class="error">Произошла ошибка при поиске</div>';
             });
+    }
+
+    // Обновить функцию создания пагинации
+    function createPagination(totalPages) {
+        let paginationHtml = '';
+        
+        for (let i = 1; i <= totalPages; i++) {
+            paginationHtml += `
+                <button class="page-button ${i === currentPage ? 'active' : ''}" 
+                        onclick="changePage(${i})">
+                    ${i}
+                </button>
+            `;
+        }
+        
+        paginationContainer.innerHTML = paginationHtml;
     }
 
     // Обработчик нажатия Enter
