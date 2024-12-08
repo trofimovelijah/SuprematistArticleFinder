@@ -65,7 +65,7 @@ def index():
 def validate_dates(start_date, end_date):
     """Валидация дат"""
     if not (start_date and end_date):
-        return True, None  # Возвращаем кортеж вместо bool
+        return True, None
     
     try:
         start = datetime.strptime(start_date, '%Y-%m-%d').date()
@@ -129,16 +129,16 @@ def search():
 
         # Выполнение запроса к API
         try:
-            response = requests.get(
+            response = requests.post(
                 "https://api.tavily.com/search",
-                params={
+                json={
                     "api_key": TAVILY_API_KEY,
                     "query": search_query,
+                    "search_depth": "advanced",
                     "include_domains": ["arxiv.org"],
-                    "page": page,
                     "max_results": 20
                 },
-                timeout=10  # Timeout в 10 секунд
+                timeout=10
             )
             
             response.raise_for_status()
@@ -157,7 +157,7 @@ def search():
             return jsonify({
                 'status': 'success',
                 'results': results,
-                'total': data.get('total_results', 0)
+                'total': len(results)  # Используем длину результатов вместо total_results
             })
 
         except requests.exceptions.Timeout:
