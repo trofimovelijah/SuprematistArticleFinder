@@ -10,6 +10,7 @@ TAVILY_API_KEY = os.getenv('TAVILY_API_KEY', 'your-api-key-here')
 
 import re
 import logging
+import math
 from datetime import datetime, date
 
 logging.basicConfig(level=logging.DEBUG)
@@ -129,14 +130,15 @@ def search():
 
         # Выполнение запроса к API
         try:
-            response = requests.post(
+            response = requests.get(
                 "https://api.tavily.com/search",
-                json={
+                params={
                     "api_key": TAVILY_API_KEY,
                     "query": search_query,
                     "search_depth": "advanced",
                     "include_domains": ["arxiv.org"],
-                    "max_results": 20
+                    "max_results": 20,
+                    "page": page
                 },
                 timeout=10
             )
@@ -154,10 +156,19 @@ def search():
                     'published_date': pub_date
                 })
             
+            # Реализация пагинации
+            total_results = len(results)
+            results_per_page = 20
+            total_pages = math.ceil(total_results / results_per_page)
+            start_idx = (page - 1) * results_per_page
+            end_idx = start_idx + results_per_page
+            
             return jsonify({
                 'status': 'success',
-                'results': results,
-                'total': len(results)  # Используем длину результатов вместо total_results
+                'results': results[start_idx:end_idx],
+                'total': total_results,
+                'current_page': page,
+                'total_pages': total_pages
             })
 
         except requests.exceptions.Timeout:
