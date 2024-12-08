@@ -1,20 +1,43 @@
-import os
+from flask import Flask, render_template, request, jsonify
+from datetime import datetime, date
 import requests
-from flask import Flask, render_template, jsonify, request
-from datetime import datetime
-
-app = Flask(__name__)
-app.secret_key = os.environ.get("FLASK_SECRET_KEY") or "a secret key"
-
-TAVILY_API_KEY = os.getenv('TAVILY_API_KEY', 'your-api-key-here')
-
-import re
 import logging
 import math
-from datetime import datetime, date
+import re
+import os
 
+app = Flask(__name__)
+
+# Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+# Get API key from environment
+TAVILY_API_KEY = os.environ.get('TAVILY_API_KEY')
+
+def extract_date_from_arxiv_url(url):
+    try:
+        if not url or 'arxiv.org' not in url:
+            return 'Дата не указана'
+            
+        url_parts = url.split('/')
+        arxiv_id = url_parts[-1]
+        
+        # Обработка старого формата (quant-ph/YYMM.NNN)
+        if 'quant-ph' in url:
+            year_part = arxiv_id[:2]
+            month_part = arxiv_id[2:4]
+            # Для старого формата используем 19XX для годов больше 80
+            year = '19' + year_part if int(year_part) >= 80 else '20' + year_part
+        else:
+            # Современный формат (YYMM.NNNNN)
+            year_part = arxiv_id[:2]
+            month_part = arxiv_id[2:4]
+            year = '20' + year_part
+            
+        return f"{month_part}.{year}"
+    except:
+        return 'Дата не указана'
 
 def normalize_text(text):
     """Нормализация текста: удаление лишних пробелов и специальных символов"""
@@ -149,23 +172,12 @@ def search():
             # Обработка результатов
             results = []
             for result in data.get('results', []):
-                # Извлекаем дату из URL статьи, так как Tavily может не возвращать дату
-                url_parts = result.get('url', '').split('/')
-                if 'arxiv.org' in result.get('url', '') and len(url_parts) > 4:
-                    try:
-                        # URL format: https://arxiv.org/abs/YYMM.NNNNN
-                        arxiv_id = url_parts[-1]
-                        year = '20' + arxiv_id[:2]
-                        month = arxiv_id[2:4]
-                        pub_date = f"{month}.{year}"
-                    except:
-                        pub_date = 'Дата не указана'
-                else:
-                    pub_date = 'Дата не указана'
+                url = result.get('url', '')
+                pub_date = extract_date_from_arxiv_url(url)
 
                 results.append({
                     'title': result.get('title', 'Без названия'),
-                    'url': result.get('url', ''),
+                    'url': url,
                     'snippet': result.get('content', result.get('description', 'Описание отсутствует')),
                     'published_date': pub_date
                 })
