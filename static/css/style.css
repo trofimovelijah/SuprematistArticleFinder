@@ -1,8 +1,9 @@
 :root {
     --primary-black: #000000;
     --primary-orange: #D4813F;
+    --primary-yellow: #E6B325;
+    --primary-gray: #808080;
     --primary-beige: #E6D5B8;
-    --primary-gray: #4A4A4A;
     --background: #F5F0E6;
     --white: #FFFFFF;
 }
@@ -22,79 +23,65 @@ body {
 
 .suprematism-shape {
     position: absolute;
+    opacity: 0.9;
     z-index: -1;
     transition: all 0.3s ease-in-out;
     pointer-events: none;
 }
 
-.split-circle {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    top: 100px;
-    right: 15%;
-    background: linear-gradient(90deg, var(--primary-black) 50%, var(--primary-ochre) 50%);
-    transform-origin: center;
-}
-
-.split-circle:hover {
-    transform: rotate(180deg);
-}
-
-.triangle-1 {
+.black-triangle {
     width: 0;
     height: 0;
-    border-left: 100px solid transparent;
-    border-right: 100px solid transparent;
-    border-bottom: 150px solid var(--accent-terracotta);
-    top: 50px;
+    border-left: 200px solid transparent;
+    border-right: 200px solid transparent;
+    border-bottom: 350px solid var(--primary-black);
+    top: 10%;
     left: 10%;
     transform: rotate(-15deg);
 }
 
-.triangle-2 {
-    width: 0;
-    height: 0;
-    border-left: 80px solid transparent;
-    border-right: 80px solid transparent;
-    border-bottom: 120px solid var(--primary-gray);
-    top: 150px;
+.orange-rectangle {
+    width: 250px;
+    height: 150px;
+    background-color: var(--primary-orange);
+    top: 40%;
     left: 25%;
     transform: rotate(30deg);
 }
 
-.rectangle-1 {
-    width: 200px;
+.yellow-square {
+    width: 100px;
     height: 100px;
-    background-color: var(--primary-ochre);
-    transform: rotate(-45deg);
-    top: 200px;
-    right: 20%;
+    background-color: var(--primary-yellow);
+    top: 20%;
+    left: 40%;
+    transform: rotate(-10deg);
 }
 
-.rectangle-2 {
-    width: 150px;
-    height: 80px;
-    background-color: var(--primary-black);
-    transform: rotate(15deg);
-    top: 50px;
-    right: 30%;
+.gray-shape {
+    width: 180px;
+    height: 120px;
+    background-color: var(--primary-gray);
+    top: 60%;
+    left: 15%;
+    transform: rotate(45deg);
 }
 
 .art-section {
-    background-color: var(--background);
     position: relative;
+    height: 100vh;
+    background-color: var(--background);
     overflow: hidden;
     padding: 2rem;
 }
 
 .content-section {
-    background-color: var(--white);
+    background-color: var(--background);
     padding: 2rem;
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: none;
 }
 
 .search-container {
