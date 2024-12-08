@@ -15,27 +15,28 @@ body {
 
 .suprematism-container {
     display: grid;
-    grid-template-columns: 45% 55%;
+    grid-template-columns: 40% 60%;
     min-height: 100vh;
     position: relative;
 }
 
 .art-section {
     position: fixed;
-    width: 45%;
+    width: 40%;
     height: 100vh;
     top: 0;
     left: 0;
     padding: 2rem;
     z-index: 1;
+    background-color: var(--background);
 }
 
 .content-section {
     position: relative;
-    margin-left: 45%;
-    width: 55%;
+    width: 60%;
     min-height: 100vh;
-    padding: 2rem;
+    margin-left: 40%;
+    padding: 3rem;
     background-color: var(--background);
 }
 
@@ -81,13 +82,9 @@ body {
 }
 
 .search-container {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    max-width: 800px;
-    margin: 0;
-    padding: 2rem;
-    background: transparent;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0;
 }
 
 .search-form {
@@ -134,15 +131,16 @@ body {
 }
 
 .results-container {
-    margin: 0;
-    padding: 0 2rem;
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0;
 }
 
 .result-item {
     border-left: 4px solid var(--primary-orange);
     background-color: var(--background);
-    margin-bottom: 1.5rem;
-    padding: 1.5rem;
+    margin-bottom: 2rem;
+    padding: 2rem;
     transition: transform 0.3s ease;
 }
 
@@ -211,8 +209,9 @@ body {
     }
     
     .content-section {
-        margin-left: 0;
         width: 100%;
+        margin-left: 0;
+        padding: 2rem;
     }
 }
 
