@@ -161,7 +161,7 @@ def search():
                 results.append({
                     'title': result.get('title', 'Без названия'),
                     'url': result.get('url', ''),
-                    'snippet': result.get('snippet', 'Описание отсутствует'),
+                    'snippet': result.get('content', result.get('description', 'Описание отсутствует')),
                     'published_date': pub_date
                 })
             
