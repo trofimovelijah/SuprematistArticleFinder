@@ -1,10 +1,11 @@
 :root {
-    --primary-ochre: #E4B363;
-    --accent-terracotta: #C1432E;
-    --primary-black: #1A1A1A;
-    --primary-gray: #8C8C8C;
+    --primary-black: #000000;
+    --primary-red: #FF0000;
+    --primary-yellow: #FFD700;
+    --primary-orange: #FFA500;
     --background: #F5F0E6;
     --white: #FFFFFF;
+    --input-background: #FFFFFF;
 }
 
 body {
@@ -20,8 +21,9 @@ body {
 
 .suprematism-shape {
     position: absolute;
-    z-index: 0;
-    transition: transform 0.3s ease-in-out;
+    z-index: -1;
+    transition: all 0.3s ease-in-out;
+    pointer-events: none;
 }
 
 .split-circle {
@@ -185,9 +187,81 @@ body {
     color: var(--primary-black);
 }
 
+.brick-1, .brick-2, .brick-3 {
+    width: 120px;
+    height: 60px;
+    background-color: var(--primary-red);
+    transform: rotate(-30deg);
+    position: absolute;
+}
+
+.brick-1 {
+    top: 30%;
+    left: 5%;
+}
+
+.brick-2 {
+    top: 40%;
+    right: 5%;
+    background-color: var(--primary-black);
+}
+
+.brick-3 {
+    bottom: 20%;
+    left: 15%;
+    background-color: var(--primary-yellow);
+}
+
+.sun-ray-1, .sun-ray-2 {
+    width: 200px;
+    height: 30px;
+    background: linear-gradient(90deg, var(--primary-yellow), var(--primary-orange));
+    position: absolute;
+}
+
+.sun-ray-1 {
+    top: 15%;
+    right: 10%;
+    transform: rotate(45deg);
+}
+
+.sun-ray-2 {
+    bottom: 25%;
+    right: 20%;
+    transform: rotate(-30deg);
+}
+
+input.form-control {
+    background-color: var(--input-background);
+    border: 1px solid var(--primary-black);
+    padding: 1rem;
+    transition: all 0.3s ease;
+}
+
+input.form-control:focus {
+    border-color: var(--primary-red);
+    box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.2);
+}
+
+@media (max-width: 1200px) {
+    .suprematism-shape {
+        transform: scale(0.8);
+    }
+}
+
+@media (max-width: 992px) {
+    .search-container {
+        margin: 2rem;
+    }
+    
+    .suprematism-shape {
+        transform: scale(0.6);
+    }
+}
+
 @media (max-width: 768px) {
     .search-container {
-        margin: 2rem 1rem;
+        margin: 1rem;
         padding: 1rem;
     }
     
@@ -195,7 +269,25 @@ body {
         flex-direction: column;
     }
     
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    .suprematism-shape {
+        opacity: 0.3;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-container {
+        margin: 0.5rem;
+    }
+    
     .suprematism-shape {
         display: none;
+    }
+    
+    input.form-control {
+        padding: 0.75rem;
     }
 }
