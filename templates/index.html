@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid suprematism-container">
+    <div class="search-container">
+        <div class="suprematism-shape rectangle"></div>
+        <div class="suprematism-shape circle"></div>
+        <div class="search-box">
+            <h1>Поиск научных статей</h1>
+            <div class="search-form">
+                <input type="text" id="searchInput" class="form-control" placeholder="Введите поисковый запрос...">
+                <div class="date-filters">
+                    <input type="date" id="startDate" class="form-control">
+                    <span>—</span>
+                    <input type="date" id="endDate" class="form-control">
+                </div>
+                <button id="searchButton" class="btn btn-primary">Поиск</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="results-container">
+        <div id="totalResults" class="total-results"></div>
+        <div id="searchResults" class="search-results"></div>
+        <div id="pagination" class="pagination-container"></div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/search.js') }}"></script>
+{% endblock %}
