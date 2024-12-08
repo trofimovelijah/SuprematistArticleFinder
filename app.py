@@ -65,7 +65,7 @@ def index():
 def validate_dates(start_date, end_date):
     """Валидация дат"""
     if not (start_date and end_date):
-        return True
+        return True, None  # Возвращаем кортеж вместо bool
     
     try:
         start = datetime.strptime(start_date, '%Y-%m-%d').date()
