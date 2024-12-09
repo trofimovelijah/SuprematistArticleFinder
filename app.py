@@ -141,11 +141,11 @@ search_cache = {}
 def search():
     try:
         # Проверка наличия API ключа
-        if not TAVILY_API_KEY or TAVILY_API_KEY == 'your-api-key-here':
-            logger.error("API key is missing or invalid")
+        if not TAVILY_API_KEY:
+            logger.error("API key is missing")
             return jsonify({
                 'status': 'error',
-                'error': 'Отсутствует или неверный API ключ'
+                'error': 'Отсутствует API ключ'
             }), 401
 
         # Получение и валидация параметров
@@ -186,15 +186,22 @@ def search():
                 'error': 'Ошибка при переводе запроса'
             }), 500
             
-        search_query = f"site:arxiv.org AND {' AND '.join(english_query.split())}"
+        # Формируем поисковый запрос
+        search_query = f"{english_query}"
+        logger.debug(f"Base query: {search_query}")
         
+        # Добавляем фильтры по датам, если указаны
         if start_date and end_date:
-            search_query += f" after:{start_date} before:{end_date}"
+            search_query = f"{search_query} after:{start_date} before:{end_date}"
+            logger.debug(f"Query with dates: {search_query}")
+            
+        # Добавляем ограничение по домену
+        search_query = f"site:arxiv.org {search_query}"
 
-        logger.debug(f"Processed search query: {search_query}")
+        logger.debug(f"Final search query: {search_query}")
 
         # Генерация уникального ключа для кэша
-        cache_key = f"{search_query}_{start_date}_{end_date}"
+        cache_key = f"{search_query}"
         
         # Проверка кэша
         if cache_key not in search_cache:
@@ -207,9 +214,12 @@ def search():
                         "query": search_query,
                         "search_depth": "advanced",
                         "include_domains": ["arxiv.org"],
-                        "max_results": 100
+                        "max_results": 300,  # Максимальное значение для API
+                        "include_answer": False,
+                        "include_raw_content": False,
+                        "sort_by": "relevance"
                     },
-                    timeout=10
+                    timeout=15  # Увеличиваем timeout для получения большего количества результатов
                 )
                 
                 response.raise_for_status()
@@ -269,13 +279,6 @@ def search():
             'error': 'Ошибка сетевого подключения'
         }), 502
         
-    except Exception as e:
-        logger.error(f"API response processing error: {str(e)}")
-        return jsonify({
-            'status': 'error',
-            'error': 'Ошибка при обработке ответа от сервера'
-        }), 500
-
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")
         return jsonify({
