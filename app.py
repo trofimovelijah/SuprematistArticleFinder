@@ -9,6 +9,16 @@ from transformers import pipeline
 import functools
 
 app = Flask(__name__)
+# Максимальный размер кэша и время жизни записей (в секундах)
+MAX_CACHE_SIZE = 100
+CACHE_TTL = 3600  # 1 час
+
+# Функция очистки устаревших записей кэша
+def clean_cache():
+    global search_cache
+    if len(search_cache) > MAX_CACHE_SIZE:
+        search_cache.clear()
+        logger.debug("Cache cleared due to size limit")
 
 @functools.lru_cache(maxsize=1)
 def get_translator():
@@ -123,6 +133,9 @@ def validate_dates(start_date, end_date):
     except ValueError:
         return False, "Неверный формат даты"
 
+# Кэш для хранения результатов поиска
+search_cache = {}
+
 @app.route('/search')
 def search():
     try:
@@ -179,74 +192,88 @@ def search():
 
         logger.debug(f"Processed search query: {search_query}")
 
-        # Выполнение запроса к API
-        try:
-            logger.debug(f"Sending POST request to Tavily API with query: {search_query}")
-            response = requests.post(
-                "https://api.tavily.com/search",
-                json={
-                    "api_key": TAVILY_API_KEY,
-                    "query": search_query,
-                    "search_depth": "advanced",
-                    "include_domains": ["arxiv.org"],
-                    "max_results": 100
-                },
-                timeout=10
-            )
-            
-            response.raise_for_status()
-            data = response.json()
-            
-            # Обработка результатов
-            results = []
-            for result in data.get('results', []):
-                url = result.get('url', '')
-                pub_date = extract_date_from_arxiv_url(url)
+        # Генерация уникального ключа для кэша
+        cache_key = f"{search_query}_{start_date}_{end_date}"
+        
+        # Проверка кэша
+        if cache_key not in search_cache:
+            logger.debug(f"Cache miss. Sending POST request to Tavily API with query: {search_query}")
+            try:
+                response = requests.post(
+                    "https://api.tavily.com/search",
+                    json={
+                        "api_key": TAVILY_API_KEY,
+                        "query": search_query,
+                        "search_depth": "advanced",
+                        "include_domains": ["arxiv.org"],
+                        "max_results": 100
+                    },
+                    timeout=10
+                )
+                
+                response.raise_for_status()
+                data = response.json()
+                
+                # Обработка результатов
+                results = []
+                for result in data.get('results', []):
+                    url = result.get('url', '')
+                    pub_date = extract_date_from_arxiv_url(url)
 
-                results.append({
-                    'title': result.get('title', 'Без названия'),
-                    'url': url,
-                    'snippet': result.get('content', result.get('description', 'Описание отсутствует')),
-                    'published_date': pub_date
-                })
-            
-            # Реализация пагинации на стороне сервера
-            results_per_page = 20
-            total_results = len(results)
-            total_pages = math.ceil(total_results / results_per_page)
-            start_idx = (page - 1) * results_per_page
-            end_idx = start_idx + results_per_page
-            
-            logger.debug(f"Total results: {total_results}, Page: {page}, Results per page: {results_per_page}")
-            
-            return jsonify({
-                'status': 'success',
-                'results': results[start_idx:end_idx],
-                'total': total_results,
-                'current_page': page,
-                'total_pages': total_pages
-            })
+                    results.append({
+                        'title': result.get('title', 'Без названия'),
+                        'url': url,
+                        'snippet': result.get('content', result.get('description', 'Описание отсутствует')),
+                        'published_date': pub_date
+                    })
+                
+                # Сохранение результатов в кэш
+                search_cache[cache_key] = results
+                logger.debug(f"Results cached for key: {cache_key}")
+            except Exception as e:
+                logger.error(f"API request failed: {str(e)}")
+                raise
+        else:
+            logger.debug(f"Cache hit for key: {cache_key}")
+            results = search_cache[cache_key]
 
-        except requests.exceptions.Timeout:
-            logger.error("API request timed out")
-            return jsonify({
-                'status': 'error',
-                'error': 'Превышено время ожидания ответа от сервера'
-            }), 504
-            
-        except requests.exceptions.RequestException as e:
-            logger.error(f"API request failed: {str(e)}")
-            return jsonify({
-                'status': 'error',
-                'error': 'Ошибка сетевого подключения'
-            }), 502
-            
-        except Exception as e:
-            logger.error(f"API response processing error: {str(e)}")
-            return jsonify({
-                'status': 'error',
-                'error': 'Ошибка при обработке ответа от сервера'
-            }), 500
+        # Реализация пагинации с кэшированными результатами
+        results_per_page = 20
+        total_results = len(results)
+        total_pages = math.ceil(total_results / results_per_page)
+        start_idx = (page - 1) * results_per_page
+        end_idx = start_idx + results_per_page
+        
+        logger.debug(f"Total results: {total_results}, Page: {page}, Results per page: {results_per_page}")
+        
+        return jsonify({
+            'status': 'success',
+            'results': results[start_idx:end_idx],
+            'total': total_results,
+            'current_page': page,
+            'total_pages': total_pages
+        })
+
+    except requests.exceptions.Timeout:
+        logger.error("API request timed out")
+        return jsonify({
+            'status': 'error',
+            'error': 'Превышено время ожидания ответа от сервера'
+        }), 504
+        
+    except requests.exceptions.RequestException as e:
+        logger.error(f"API request failed: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'error': 'Ошибка сетевого подключения'
+        }), 502
+        
+    except Exception as e:
+        logger.error(f"API response processing error: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'error': 'Ошибка при обработке ответа от сервера'
+        }), 500
 
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")
