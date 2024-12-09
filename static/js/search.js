@@ -101,8 +101,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     page: page.toString()
                 });
 
-                if (startDate.value) filterParams.append('start_date', startDate.value);
-                if (endDate.value) filterParams.append('end_date', endDate.value);
+                // Если указана только начальная дата, добавляем текущую дату как конечную
+                if (startDate.value && !endDate.value) {
+                    const today = new Date().toISOString().split('T')[0];
+                    filterParams.append('start_date', startDate.value);
+                    filterParams.append('end_date', today);
+                }
+                // Если указана только конечная дата, добавляем 1980-01-01 как начальную
+                else if (!startDate.value && endDate.value) {
+                    filterParams.append('start_date', '1980-01-01');
+                    filterParams.append('end_date', endDate.value);
+                }
+                // Если указаны обе даты, используем их
+                else {
+                    filterParams.append('start_date', startDate.value);
+                    filterParams.append('end_date', endDate.value);
+                }
 
                 return fetch(`/filter?${filterParams.toString()}`);
             }
