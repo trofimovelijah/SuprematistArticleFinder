@@ -26,6 +26,33 @@ document.addEventListener('DOMContentLoaded', function() {
         resultsContainer.innerHTML = `<div class="error">${message}</div>`;
     }
 
+    function sortResults(results, sortOrder) {
+        if (!sortOrder) return results;
+
+        return [...results].sort((a, b) => {
+            const dateA = a.published_date;
+            const dateB = b.published_date;
+
+            // Обработка случаев с отсутствующими датами
+            if (!dateA || dateA === 'Дата не указана') {
+                return sortOrder === 'desc' ? 1 : -1;  // В конец или начало списка
+            }
+            if (!dateB || dateB === 'Дата не указана') {
+                return sortOrder === 'desc' ? -1 : 1;  // В конец или начало списка
+            }
+
+            // Преобразуем даты в формате MM.YYYY в объекты Date
+            const [monthA, yearA] = dateA.split('.');
+            const [monthB, yearB] = dateB.split('.');
+            const dateObjA = new Date(yearA, monthA - 1);
+            const dateObjB = new Date(yearB, monthB - 1);
+
+            return sortOrder === 'desc' 
+                ? dateObjB - dateObjA  // Сначала новые
+                : dateObjA - dateObjB; // Сначала старые
+        });
+    }
+
     function displayResults(data) {
         hideLoading();
         
@@ -36,7 +63,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         totalResults.textContent = `Найдено результатов: ${data.total}`;
         
-        resultsContainer.innerHTML = data.results
+        // Сортируем результаты
+        const sortOrder = document.getElementById('sortOrder').value;
+        const sortedResults = sortResults(data.results, sortOrder);
+        
+        resultsContainer.innerHTML = sortedResults
             .map(result => {
                 const date = result.published_date || 'Дата не указана';
                 const snippet = result.snippet || 'Описание отсутствует';
@@ -185,5 +216,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 displayError('Дата не может быть больше текущей');
             }
         });
+    });
+
+    // Обработчик изменения сортировки
+    document.getElementById('sortOrder').addEventListener('change', function() {
+        if (resultsContainer.innerHTML) { // Если есть результаты
+            const results = search_cache; // Используем кэшированные результаты
+            displayResults({
+                status: 'success',
+                results: results,
+                total: results.length
+            });
+        }
     });
 });

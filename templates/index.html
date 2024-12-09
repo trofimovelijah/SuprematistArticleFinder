@@ -14,10 +14,17 @@
             <div class="search-form">
                 <input type="text" id="searchInput" class="form-control" placeholder="Введите поисковый запрос...">
                 <div class="search-controls">
-                    <div class="date-filters">
-                        <input type="date" id="startDate" class="form-control" max="{{ today }}">
-                        <span>—</span>
-                        <input type="date" id="endDate" class="form-control" max="{{ today }}">
+                    <div class="search-controls-row">
+                        <div class="date-filters">
+                            <input type="date" id="startDate" class="form-control" max="{{ today }}">
+                            <span>—</span>
+                            <input type="date" id="endDate" class="form-control" max="{{ today }}">
+                        </div>
+                        <select id="sortOrder" class="form-control">
+                            <option value="">Сортировка по дате</option>
+                            <option value="desc">Сначала новые</option>
+                            <option value="asc">Сначала старые</option>
+                        </select>
                     </div>
                     <button id="searchButton" class="btn">Поиск</button>
                 </div>
