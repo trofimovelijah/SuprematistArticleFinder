@@ -75,19 +75,20 @@ document.addEventListener('DOMContentLoaded', function() {
         showLoading();
         currentPage = page; // Устанавливаем currentPage до запроса
 
-        const searchParams = new URLSearchParams({
-            q: query
-        });
+        const searchData = {
+            query: query,
+            page: page
+        };
 
-        // Добавляем параметр page только если указаны даты или страница > 1
-        if (startDate.value || endDate.value || page > 1) {
-            searchParams.append('page', page);
-        }
+        if (startDate.value) searchData.start_date = startDate.value;
+        if (endDate.value) searchData.end_date = endDate.value;
 
-        if (startDate.value) searchParams.append('start_date', startDate.value);
-        if (endDate.value) searchParams.append('end_date', endDate.value);
-
-        fetch(`/search?${searchParams.toString()}`)
+        fetch('/search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(searchData)
             .then(response => response.json())
             .then(data => {
                 if (data.error) {

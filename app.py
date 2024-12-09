@@ -137,7 +137,7 @@ def validate_dates(start_date, end_date):
 # Кэш для хранения результатов поиска
 search_cache = {}
 
-@app.route('/search')
+@app.route('/search', methods=['POST'])
 def search():
     try:
         # Проверка наличия API ключа
@@ -148,8 +148,15 @@ def search():
                 'error': 'Отсутствует API ключ'
             }), 401
 
-        # Получение и валидация параметров
-        query = request.args.get('q', '').strip()
+        # Получение и валидация данных из тела запроса
+        data = request.get_json()
+        if not data:
+            return jsonify({
+                'status': 'error',
+                'error': 'Отсутствует тело запроса'
+            }), 400
+
+        query = data.get('query', '').strip()
         if not query:
             return jsonify({
                 'status': 'error',
@@ -157,15 +164,15 @@ def search():
             }), 400
 
         try:
-            page = max(1, int(request.args.get('page', 1)))
-        except ValueError:
+            page = max(1, int(data.get('page', 1)))
+        except (ValueError, TypeError):
             return jsonify({
                 'status': 'error',
                 'error': 'Неверный формат номера страницы'
             }), 400
 
-        start_date = request.args.get('start_date')
-        end_date = request.args.get('end_date')
+        start_date = data.get('start_date')
+        end_date = data.get('end_date')
         
         # Валидация дат
         dates_valid, date_error = validate_dates(start_date, end_date)
@@ -192,7 +199,10 @@ def search():
         
         # Добавляем фильтры по датам, если указаны
         if start_date and end_date:
-            search_query = f"{search_query} after:{start_date} before:{end_date}"
+            # Конвертируем даты в формат YYYY-MM
+            start_ym = datetime.strptime(start_date, '%Y-%m-%d').strftime('%Y-%m')
+            end_ym = datetime.strptime(end_date, '%Y-%m-%d').strftime('%Y-%m')
+            search_query = f"{search_query} after:{start_ym} before:{end_ym}"
             logger.debug(f"Query with dates: {search_query}")
             
         # Добавляем ограничение по домену
