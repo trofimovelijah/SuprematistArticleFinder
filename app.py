@@ -22,7 +22,7 @@ translator = Translator()
 
 def translate_search_query(query):
     """
-    Переводит поисковый запрос и формирует двуязычный запрос с OR
+    Переводит поисковый запрос и возвращает кортеж (оригинальный запрос, переведенный запрос)
     """
     try:
         # Определяем язык запроса
@@ -31,20 +31,21 @@ def translate_search_query(query):
         if detected.lang == 'ru':
             # Если запрос на русском, переводим на английский
             translation = translator.translate(query, src='ru', dest='en')
-            combined_query = f"{query} OR {translation.text}"
+            original = f"site:arxiv.org {query}"
+            translated = f"site:arxiv.org {translation.text}"
         else:
             # Если запрос не на русском, считаем что это английский и переводим на русский
             translation = translator.translate(query, src='en', dest='ru')
-            combined_query = f"{query} OR {translation.text}"
+            original = f"site:arxiv.org {query}"
+            translated = f"site:arxiv.org {translation.text}"
             
-        logger.debug(f"Original query: {query}")
-        logger.debug(f"Translated query: {translation.text}")
-        logger.debug(f"Combined query: {combined_query}")
+        logger.debug(f"Original query: {original}")
+        logger.debug(f"Translated query: {translated}")
         
-        return combined_query
+        return original, translated
     except Exception as e:
         logger.error(f"Translation error: {str(e)}")
-        return query  # В случае ошибки возвращаем оригинальный запрос
+        return f"site:arxiv.org {query}", None  # В случае ошибки возвращаем только оригинальный запрос
 
 def validate_dates(start_date, end_date):
     """Валидация дат"""
@@ -144,17 +145,20 @@ def search():
                 'error': 'Отсутствует поисковый запрос'
             }), 400
             
-        # Переводим запрос и добавляем OR оператор
-        combined_query = translate_search_query(query)
-
         try:
             page = max(1, int(data.get('page', 1)))
         except (ValueError, TypeError):
             page = 1
 
-        # Формируем поисковый запрос с ограничением по домену
-        search_query = f"site:arxiv.org {combined_query}"
-        logger.debug(f"Search query: {search_query}")
+        # Получаем оригинальный и переведенный запросы
+        original_query, translated_query = translate_search_query(query)
+        
+        # Формируем комбинированный запрос с OR
+        search_query = f"{original_query}"
+        if translated_query:
+            search_query = f"{original_query} OR {translated_query}"
+            
+        logger.debug(f"Combined search query: {search_query}")
 
         # Выполняем поиск через Tavily API
         tavily_url = "https://api.tavily.com/search"
