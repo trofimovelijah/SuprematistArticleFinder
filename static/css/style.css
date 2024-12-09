@@ -56,11 +56,10 @@ body {
     width: 50%;
     margin-left: 50%;
     padding: 4rem;
-    background-color: var(--white);
+    background-color: var(--background);
     position: relative; /* Retained from original */
     min-height: 100vh; /* Retained from original */
     z-index: 1; /* Retained from original */
-
 }
 
 .search-container {
