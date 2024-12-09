@@ -14,6 +14,13 @@
             <div class="search-form">
                 <input type="text" id="searchInput" class="form-control" placeholder="Введите поисковый запрос...">
                 <div class="search-controls">
+                    <div class="search-controls-row">
+                        <div class="date-filters">
+                            <input type="date" id="startDate" class="form-control" max="{{ today }}">
+                            <span>—</span>
+                            <input type="date" id="endDate" class="form-control" max="{{ today }}">
+                        </div>
+                    </div>
                     <button id="searchButton" class="btn">Поиск</button>
                 </div>
             </div>

@@ -5,9 +5,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const totalResults = document.getElementById('totalResults');
     const paginationContainer = document.getElementById('pagination');
     const loadingIndicator = document.getElementById('loadingIndicator');
+    const startDate = document.getElementById('startDate');
+    const endDate = document.getElementById('endDate');
 
     let currentPage = 1;
-    const resultsPerPage = 20;
+    let searchState = {
+        results: [],
+        total: 0,
+        currentPage: 1,
+        total_pages: 0,
+        query: ''
+    };
 
     function showLoading() {
         loadingIndicator.style.display = 'flex';
@@ -26,8 +34,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function displayResults(results) {
-        hideLoading();
-        
         resultsContainer.innerHTML = results
             .map(result => {
                 const date = result.published_date || 'Дата не указана';
@@ -73,21 +79,39 @@ document.addEventListener('DOMContentLoaded', function() {
         showLoading();
         currentPage = page;
 
+        const requestBody = {
+            query: query,
+            page: page
+        };
+
+        if (startDate.value) {
+            requestBody.start_date = startDate.value;
+        }
+        if (endDate.value) {
+            requestBody.end_date = endDate.value;
+        }
+
         fetch('/search', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ 
-                query: query,
-                page: page
-            })
+            body: JSON.stringify(requestBody)
         })
         .then(response => response.json())
         .then(data => {
             if (data.error) {
                 throw new Error(data.error);
             }
+            
+            searchState = {
+                results: data.results,
+                total: data.total,
+                currentPage: data.current_page,
+                total_pages: data.total_pages,
+                query: query
+            };
+
             displayResults(data.results);
             totalResults.textContent = `Найдено результатов: ${data.total}`;
             createPagination(data.total_pages);
