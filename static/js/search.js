@@ -116,13 +116,11 @@ document.addEventListener('DOMContentLoaded', function() {
             totalResults.textContent = `Найдено результатов: ${data.total}`;
             createPagination(data.total_pages);
             window.scrollTo(0, 0);
+            hideLoading();
         })
         .catch(error => {
             console.error('Error:', error);
             displayError('Произошла ошибка при поиске');
-        })
-        .finally(() => {
-            hideLoading();
         });
     }
 
