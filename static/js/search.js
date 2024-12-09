@@ -156,7 +156,12 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error:', error);
-                displayError('Произошла ошибка при фильтрации результатов');
+                // Проверяем, есть ли сообщение об ошибке в ответе
+                if (error.message) {
+                    displayError(error.message);
+                } else {
+                    displayError('Произошла ошибка при фильтрации результатов');
+                }
             });
     }
 
