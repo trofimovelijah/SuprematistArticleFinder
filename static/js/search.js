@@ -70,25 +70,38 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateResults(newResults, total, total_pages) {
-        // Обновляем состояние
-        const sortOrder = document.getElementById('sortOrder').value;
-        const sortedResults = sortResults(newResults, sortOrder);
-        
+        // Сохраняем все результаты в состоянии
         searchState = {
-            results: sortedResults,
+            results: newResults,
             total: total,
             currentPage: currentPage,
             total_pages: total_pages
         };
 
+        // Получаем текущую сортировку
+        const sortOrder = document.getElementById('sortOrder').value;
+        const sortedResults = sortResults(newResults, sortOrder);
+        
         // Получаем результаты для текущей страницы
         const pageResults = getPageResults(sortedResults, currentPage);
 
         // Обновляем отображение
-        displayResults(pageResults);
+        resultsContainer.innerHTML = pageResults
+            .map(result => {
+                const date = result.published_date || 'Дата не указана';
+                const snippet = result.snippet || 'Описание отсутствует';
+                return `
+                    <div class="result-item">
+                        <h3><a href="${result.url}" target="_blank">${result.title}</a></h3>
+                        <div class="result-date">Дата публикации: ${date}</div>
+                        <p class="result-snippet">${snippet}</p>
+                    </div>
+                `;
+            })
+            .join('');
+
+        // Обновляем пагинацию и счетчик
         createPagination(total_pages);
-        
-        // Обновляем счетчик результатов
         totalResults.textContent = `Найдено результатов: ${total}`;
     }
 
@@ -194,9 +207,24 @@ document.addEventListener('DOMContentLoaded', function() {
     window.changePage = function(page) {
         if (page !== currentPage && searchState.results.length > 0) {
             currentPage = page;
-            // Используем существующие результаты для пагинации
-            const pageResults = getPageResults(searchState.results, currentPage);
-            displayResults(pageResults);
+            const sortOrder = document.getElementById('sortOrder').value;
+            const sortedResults = sortResults(searchState.results, sortOrder);
+            const pageResults = getPageResults(sortedResults, page);
+            
+            resultsContainer.innerHTML = pageResults
+                .map(result => {
+                    const date = result.published_date || 'Дата не указана';
+                    const snippet = result.snippet || 'Описание отсутствует';
+                    return `
+                        <div class="result-item">
+                            <h3><a href="${result.url}" target="_blank">${result.title}</a></h3>
+                            <div class="result-date">Дата публикации: ${date}</div>
+                            <p class="result-snippet">${snippet}</p>
+                        </div>
+                    `;
+                })
+                .join('');
+            
             createPagination(searchState.total_pages);
             window.scrollTo(0, 0);
         }
