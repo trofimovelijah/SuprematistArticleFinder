@@ -1,11 +1,10 @@
 :root {
-    --primary-black: #000000;
-    --primary-orange: #D4813F;
-    --primary-yellow: #E6B325;
-    --primary-gray: #808080;
-    --primary-beige: #E6D5B8;
-    --background: #F5F0E6;
-    --white: #FFFFFF;
+    --primary-black: #1a1a1a;
+    --primary-orange: #ff6b35;
+    --primary-gray: #666666;
+    --primary-beige: #E6D5B8; /* Retained from original */
+    --background: #F5F0E6; /* Retained from original */
+    --white: #ffffff;
 }
 
 body {
@@ -19,49 +18,49 @@ body {
 .suprematism-container {
     display: flex;
     min-height: 100vh;
-    position: relative;
+    position: relative; /* Retained from original */
 }
 
 .art-section {
     position: fixed;
-    width: 40%;
-    height: 100vh;
-    top: 0;
     left: 0;
-    padding: 2rem;
-    background-color: var(--background);
-    z-index: 0;
+    top: 0;
+    width: 50%;
+    height: 100vh;
+    background-color: var(--white);
+    padding: 2rem; /* Retained from original */
+    z-index: 0; /* Retained from original */
 }
 
 .suprematism-composition {
-    position: relative;
     width: 100%;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
+    padding: 2rem; /* Retained from original */
 }
 
 .suprematism-image {
-    max-width: 100%;
-    max-height: 100%;
+    max-width: 90%;
+    max-height: 90%;
     object-fit: contain;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease; /* Retained from original */
 }
 
 .suprematism-image:hover {
-    transform: scale(1.02);
+    transform: scale(1.02); /* Retained from original */
 }
 
 .content-section {
-    position: relative;
-    width: 60%;
-    min-height: 100vh;
-    margin-left: 40%;
-    padding: 3rem;
-    background-color: var(--background);
-    z-index: 1;
+    width: 50%;
+    margin-left: 50%;
+    padding: 4rem;
+    background-color: var(--white);
+    position: relative; /* Retained from original */
+    min-height: 100vh; /* Retained from original */
+    z-index: 1; /* Retained from original */
+
 }
 
 .search-container {
@@ -71,10 +70,15 @@ body {
     padding: 0;
 }
 
+.search-container h1 {
+    color: var(--primary-black);
+    margin-bottom: 2rem;
+}
+
 .search-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+    display: flex; /*Retained and adjusted*/
+    flex-direction: column; /*Retained and adjusted*/
+    gap: 1.5rem; /*Retained*/
     width: 100%;
 }
 
@@ -87,28 +91,39 @@ body {
     font-size: 1rem;
 }
 
-.search-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    width: 100%;
+.search-form input[type="text"]:focus {
+    border-color: var(--primary-orange);
+    outline: none;
 }
 
-.search-controls-row {
+.search-controls {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
-    width: 100%;
+    gap: 1rem;
+    width: 100%; /* Retained from original */
 }
 
 .date-filters {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    flex-grow: 1;
+    flex: 1;
+    gap: 0.5rem;
 }
 
 .date-filters input {
+    width: 160px;
+    height: 50px;
+    padding: 0 1rem;
+    border: 2px solid var(--primary-black);
+    background-color: var(--white);
+    font-size: 1rem;
+}
+
+.date-filters span {
+    color: var(--primary-black);
+    font-weight: bold;
+}
+
 #sortOrder {
     height: 50px;
     padding: 0 1rem;
@@ -121,18 +136,6 @@ body {
 
 #sortOrder:hover {
     border-color: var(--primary-orange);
-}
-    width: 160px;
-    height: 50px;
-    padding: 0 1rem;
-    border: 2px solid var(--primary-black);
-    background-color: var(--white);
-    font-size: 1rem;
-}
-
-.date-filters span {
-    color: var(--primary-black);
-    font-weight: bold;
 }
 
 #searchButton {
@@ -294,15 +297,10 @@ body {
 @media (max-width: 1200px) {
     .search-controls {
         flex-direction: column;
-        gap: 1rem;
     }
 
     .date-filters {
         width: 100%;
-    }
-
-    .date-filters input {
-        flex: 1;
     }
 
     #searchButton {
