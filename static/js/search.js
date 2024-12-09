@@ -114,6 +114,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function applyFilters() {
+        // Если нет ключа запроса (поиск не выполнялся), не делаем запрос
+        if (!searchState.query_key) {
+            return;
+        }
+
         const start = startDate.value;
         const end = endDate.value;
         const page = currentPage;
