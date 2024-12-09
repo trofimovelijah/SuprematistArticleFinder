@@ -31,7 +31,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function displayError(message) {
         hideLoading();
-        resultsContainer.innerHTML = `<div class="error">${message}</div>`;
+        resultsContainer.innerHTML = '';
+        totalResults.textContent = message;
     }
 
     function displayResults(results) {
@@ -178,8 +179,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     searchButton.addEventListener('click', performSearch);
 
-    startDate.addEventListener('change', applyFilters);
-    endDate.addEventListener('change', applyFilters);
+    startDate.addEventListener('change', function() {
+        if (searchState.query_key) {
+            applyFilters();
+        }
+    });
+    
+    endDate.addEventListener('change', function() {
+        if (searchState.query_key) {
+            applyFilters();
+        }
+    });
 
     window.changePage = function(page) {
         if (page !== currentPage) {

@@ -99,7 +99,8 @@ body {
     display: flex;
     align-items: center;
     gap: 1rem;
-    width: 100%; /* Retained from original */
+    width: 100%;
+    flex-wrap: nowrap;
 }
 
 .date-filters {
