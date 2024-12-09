@@ -1,148 +1,86 @@
-from flask import Flask, render_template, request, jsonify
-from datetime import datetime, date
-import requests
+import os
+import json
 import logging
 import math
-import re
-import os
-from transformers import pipeline
-import functools
+from datetime import datetime, date
+import requests
+from flask import Flask, request, jsonify, render_template
+from googletrans import Translator
 
-app = Flask(__name__)
-# Максимальный размер кэша и время жизни записей (в секундах)
-MAX_CACHE_SIZE = 100
-CACHE_TTL = 3600  # 1 час
-
-# Функция очистки устаревших записей кэша
-def clean_cache():
-    global search_cache
-    if len(search_cache) > MAX_CACHE_SIZE:
-        search_cache.clear()
-        logger.debug("Cache cleared due to size limit")
-
-@functools.lru_cache(maxsize=1)
-def get_translator():
-    """Ленивая инициализация переводчика"""
-    return pipeline("translation", model="Helsinki-NLP/opus-mt-ru-en")
-
-# Configure logging
+# Настройка логирования
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# Get API key from environment
-TAVILY_API_KEY = os.environ.get('TAVILY_API_KEY')
+app = Flask(__name__)
 
-def extract_date_from_arxiv_url(url):
-    try:
-        if not url or 'arxiv.org' not in url:
-            return 'Дата не указана'
-            
-        url_parts = url.split('/')
-        arxiv_id = url_parts[-1]
-        
-        # Обработка старого формата (quant-ph/YYMM.NNN)
-        if 'quant-ph' in url:
-            year_part = arxiv_id[:2]
-            month_part = arxiv_id[2:4]
-            # Для старого формата используем 19XX для годов больше 80
-            year = '19' + year_part if int(year_part) >= 80 else '20' + year_part
-        else:
-            # Современный формат (YYMM.NNNNN)
-            year_part = arxiv_id[:2]
-            month_part = arxiv_id[2:4]
-            year = '20' + year_part
-            
-        return f"{month_part}.{year}"
-    except:
-        return 'Дата не указана'
+# Получение API ключа из переменных окружения
+TAVILY_API_KEY = os.getenv('TAVILY_API_KEY')
 
-def normalize_text(text):
-    """Нормализация текста: удаление лишних пробелов и специальных символов"""
-    text = re.sub(r'[^\w\s-]', ' ', text)
-    text = ' '.join(text.split())
-    return text.lower()
+# Настройка переводчика
+translator = Translator()
 
-def translate_to_english(text):
-    """
-    Расширенная функция перевода с русского на английский с поддержкой составных запросов.
-    """
-    translations = {
-        'квантовые вычисления': 'quantum computing',
-        'искусственный интеллект': 'artificial intelligence',
-        'машинное обучение': 'machine learning',
-        'нейронные сети': 'neural networks',
-        'глубокое обучение': 'deep learning',
-        'обработка данных': 'data processing',
-        'анализ данных': 'data analysis',
-        'компьютерное зрение': 'computer vision',
-        'обработка языка': 'natural language processing',
-        'робототехника': 'robotics',
-        'кибербезопасность': 'cybersecurity',
-        'большие данные': 'big data',
-        'облачные вычисления': 'cloud computing',
-        'интернет вещей': 'internet of things',
-        'блокчейн': 'blockchain',
-        'квантовая физика': 'quantum physics',
-        'теория относительности': 'relativity theory',
-        'молекулярная биология': 'molecular biology',
-        'генетика': 'genetics',
-        'нанотехнологии': 'nanotechnology'
-    }
-    
-    # Нормализация входного текста
-    normalized_text = normalize_text(text)
-    words = normalized_text.split()
-    
-    # Проверяем каждое слово в словаре
-    translated_words = []
-    for word in words:
-        # Если слово есть в словаре известных терминов
-        if word in translations:
-            translated_words.append(translations[word])
-        else:
-            # Используем HuggingFace для перевода
-            try:
-                translator = get_translator()
-                translation = translator(word)
-                translated_words.append(translation[0]['translation_text'].lower())
-            except Exception as e:
-                logger.error(f"Translation error: {str(e)}")
-                translated_words.append(word)
-    
-    return ' '.join(translated_words)
-
-@app.route('/')
-def index():
-    today = date.today().strftime('%Y-%m-%d')
-    return render_template('index.html', today=today)
+# Кэш для хранения результатов поиска
+search_cache = {}
 
 def validate_dates(start_date, end_date):
     """Валидация дат"""
     if not (start_date and end_date):
         return True, None
-    
+        
     try:
         start = datetime.strptime(start_date, '%Y-%m-%d').date()
         end = datetime.strptime(end_date, '%Y-%m-%d').date()
+        
         today = date.today()
         
+        if start > today or end > today:
+            return False, 'Дата не может быть больше текущей'
+            
         if start > end:
-            return False, "Дата начала не может быть позже даты окончания"
-        if end > today:
-            return False, "Дата окончания не может быть в будущем"
+            return False, 'Начальная дата не может быть больше конечной'
+            
         return True, None
     except ValueError:
-        return False, "Неверный формат даты"
+        return False, 'Неверный формат даты'
 
-# Кэш для хранения результатов поиска
-search_cache = {}
+def filter_results_by_date(results, start_date, end_date):
+    """Фильтрация результатов по датам"""
+    if not (start_date and end_date):
+        return results
+        
+    try:
+        start = datetime.strptime(start_date, '%Y-%m-%d').date()
+        end = datetime.strptime(end_date, '%Y-%m-%d').date()
+        
+        filtered_results = []
+        for result in results:
+            pub_date_str = result.get('published_date', '')
+            if not pub_date_str or pub_date_str == 'Дата не указана':
+                continue
+                
+            try:
+                # Преобразуем строку даты в формате MM.YYYY в объект datetime
+                pub_date = datetime.strptime(pub_date_str, '%m.%Y').date()
+                # Сравниваем только год и месяц
+                if start.replace(day=1) <= pub_date.replace(day=1) <= end.replace(day=1):
+                    filtered_results.append(result)
+            except ValueError:
+                continue
+                
+        return filtered_results
+    except ValueError:
+        return results
+
+@app.route('/')
+def index():
+    return render_template('index.html', today=datetime.now().strftime('%Y-%m-%d'))
 
 @app.route('/search', methods=['POST'])
 def search():
     try:
         # Проверка наличия API ключа
         if not TAVILY_API_KEY:
-            logger.error("API key is missing")
+            logger.error("Missing API key")
             return jsonify({
                 'status': 'error',
                 'error': 'Отсутствует API ключ'
@@ -160,105 +98,83 @@ def search():
         if not query:
             return jsonify({
                 'status': 'error',
-                'error': 'Поисковый запрос не может быть пустым'
+                'error': 'Отсутствует поисковый запрос'
             }), 400
 
         try:
             page = max(1, int(data.get('page', 1)))
         except (ValueError, TypeError):
-            return jsonify({
-                'status': 'error',
-                'error': 'Неверный формат номера страницы'
-            }), 400
-
-        start_date = data.get('start_date')
-        end_date = data.get('end_date')
-        
-        # Валидация дат
-        dates_valid, date_error = validate_dates(start_date, end_date)
-        if not dates_valid:
-            return jsonify({
-                'status': 'error',
-                'error': date_error
-            }), 400
+            page = 1
 
         # Перевод и нормализация запроса
         try:
-            english_query = translate_to_english(query)
-            logger.info(f"Translated query: {query} -> {english_query}")
+            english_query = translator.translate(query, dest='en').text
         except Exception as e:
-            logger.error(f"Translation failed: {str(e)}")
+            logger.error(f"Translation error: {str(e)}")
             return jsonify({
                 'status': 'error',
                 'error': 'Ошибка при переводе запроса'
             }), 500
             
-        # Формируем поисковый запрос
-        search_query = f"{english_query}"
-        logger.debug(f"Base query: {search_query}")
-        
-        # Добавляем фильтры по датам, если указаны
-        if start_date and end_date:
-            # Конвертируем даты в формат YYYY-MM
-            start_ym = datetime.strptime(start_date, '%Y-%m-%d').strftime('%Y-%m')
-            end_ym = datetime.strptime(end_date, '%Y-%m-%d').strftime('%Y-%m')
-            search_query = f"{search_query} after:{start_ym} before:{end_ym}"
-            logger.debug(f"Query with dates: {search_query}")
-            
-        # Добавляем ограничение по домену
-        search_query = f"site:arxiv.org {search_query}"
+        # Формируем поисковый запрос с ограничением по домену
+        search_query = f"site:arxiv.org {english_query}"
+        logger.debug(f"Search query: {search_query}")
 
         logger.debug(f"Final search query: {search_query}")
 
-        # Генерация уникального ключа для кэша
-        cache_key = f"{search_query}"
-        
-        # Проверка кэша
-        if cache_key not in search_cache:
-            logger.debug(f"Cache miss. Sending POST request to Tavily API with query: {search_query}")
-            try:
-                response = requests.post(
-                    "https://api.tavily.com/search",
-                    json={
-                        "api_key": TAVILY_API_KEY,
-                        "query": search_query,
-                        "search_depth": "advanced",
-                        "include_domains": ["arxiv.org"],
-                        "max_results": 300,  # Максимальное значение для API
-                        "include_answer": False,
-                        "include_raw_content": False,
-                        "sort_by": "relevance"
-                    },
-                    timeout=15  # Увеличиваем timeout для получения большего количества результатов
-                )
-                
-                response.raise_for_status()
-                data = response.json()
-                
-                # Обработка результатов
-                results = []
-                for result in data.get('results', []):
-                    url = result.get('url', '')
-                    pub_date = extract_date_from_arxiv_url(url)
+        # Выполняем поиск через Tavily API
+        tavily_url = "https://api.tavily.com/search"
+        params = {
+            "api_key": TAVILY_API_KEY,
+            "query": search_query,
+            "include_domains": ["arxiv.org"],
+            "search_depth": "advanced",
+            "max_results": 100
+        }
 
-                    results.append({
-                        'title': result.get('title', 'Без названия'),
-                        'url': url,
-                        'snippet': result.get('content', result.get('description', 'Описание отсутствует')),
-                        'published_date': pub_date
-                    })
-                
-                # Сохранение результатов в кэш
-                search_cache[cache_key] = results
-                logger.debug(f"Results cached for key: {cache_key}")
-            except Exception as e:
-                logger.error(f"API request failed: {str(e)}")
-                raise
-        else:
-            logger.debug(f"Cache hit for key: {cache_key}")
-            results = search_cache[cache_key]
+        try:
+            response = requests.get(tavily_url, params=params, timeout=30)
+            response.raise_for_status()
+            search_data = response.json()
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Tavily API error: {str(e)}")
+            return jsonify({
+                'status': 'error',
+                'error': 'Ошибка при выполнении поискового запроса'
+            }), 500
 
-        # Реализация пагинации с кэшированными результатами
+        # Обработка результатов
+        results = []
+        for result in search_data.get('results', []):
+            # Извлечение даты из URL или описания
+            published_date = "Дата не указана"
+            
+            # Пытаемся найти дату в описании или URL
+            url = result.get('url', '')
+            if '/abs/' in url or '/pdf/' in url:
+                try:
+                    # Извлекаем идентификатор статьи
+                    article_id = url.split('/')[-1].replace('.pdf', '')
+                    # Получаем год и месяц из идентификатора
+                    if '.' in article_id:
+                        year_month = article_id.split('.')[0]
+                        if len(year_month) >= 4:
+                            year = year_month[:2]
+                            month = year_month[2:4]
+                            # Преобразуем год в полный формат
+                            full_year = f"20{year}"
+                            published_date = f"{month}.{full_year}"
+                except Exception:
+                    pass
+
+            results.append({
+                'url': result.get('url', ''),
+                'title': result.get('title', 'Без названия'),
+                'snippet': result.get('snippet', ''),
+                'published_date': published_date
+            })
+
+        # Пагинация
         results_per_page = 20
         total_results = len(results)
         total_pages = math.ceil(total_results / results_per_page)
@@ -267,6 +183,74 @@ def search():
         
         logger.debug(f"Total results: {total_results}, Page: {page}, Results per page: {results_per_page}")
         
+        # Сохраняем результаты в кэш с ключом только по поисковому запросу
+        cache_key = search_query
+        if cache_key not in search_cache:
+            search_cache[cache_key] = results
+            
+        return jsonify({
+            'status': 'success',
+            'results': results[start_idx:end_idx],
+            'total': total_results,
+            'current_page': page,
+            'total_pages': total_pages,
+            'query_key': cache_key
+        })
+
+    except requests.exceptions.Timeout:
+        logger.error("Request timeout")
+        return jsonify({
+            'status': 'error',
+            'error': 'Превышено время ожидания запроса'
+        }), 504
+
+    except Exception as e:
+        logger.error(f"Unexpected error: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'error': 'Произошла непредвиденная ошибка'
+        }), 500
+
+@app.route('/filter')
+def filter_results():
+    try:
+        query_key = request.args.get('query_key')
+        if not query_key or query_key not in search_cache:
+            return jsonify({
+                'status': 'error',
+                'error': 'Недопустимый ключ запроса'
+            }), 400
+
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        
+        try:
+            page = max(1, int(request.args.get('page', 1)))
+        except (ValueError, TypeError):
+            page = 1
+
+        # Получаем результаты из кэша
+        results = search_cache[query_key]
+        
+        # Фильтруем по датам, если они указаны
+        if start_date and end_date:
+            # Валидация дат
+            dates_valid, date_error = validate_dates(start_date, end_date)
+            if not dates_valid:
+                return jsonify({
+                    'status': 'error',
+                    'error': date_error
+                }), 400
+                
+            results = filter_results_by_date(results, start_date, end_date)
+
+        # Пагинация отфильтрованных результатов
+        results_per_page = 20
+        total_results = len(results)
+        total_pages = math.ceil(total_results / results_per_page)
+        start_idx = (page - 1) * results_per_page
+        end_idx = start_idx + results_per_page
+
         return jsonify({
             'status': 'success',
             'results': results[start_idx:end_idx],
@@ -275,25 +259,11 @@ def search():
             'total_pages': total_pages
         })
 
-    except requests.exceptions.Timeout:
-        logger.error("API request timed out")
-        return jsonify({
-            'status': 'error',
-            'error': 'Превышено время ожидания ответа от сервера'
-        }), 504
-        
-    except requests.exceptions.RequestException as e:
-        logger.error(f"API request failed: {str(e)}")
-        return jsonify({
-            'status': 'error',
-            'error': 'Ошибка сетевого подключения'
-        }), 502
-        
     except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
+        logger.error(f"Filter error: {str(e)}")
         return jsonify({
             'status': 'error',
-            'error': 'Внутренняя ошибка сервера'
+            'error': 'Ошибка при фильтрации результатов'
         }), 500
 
 if __name__ == '__main__':

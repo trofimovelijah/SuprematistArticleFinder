@@ -73,22 +73,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         showLoading();
-        currentPage = page; // Устанавливаем currentPage до запроса
+        currentPage = page;
 
-        const searchData = {
-            query: query,
-            page: page
-        };
-
-        if (startDate.value) searchData.start_date = startDate.value;
-        if (endDate.value) searchData.end_date = endDate.value;
-
+        // Шаг 1: Выполняем поиск
         fetch('/search', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(searchData)
+            body: JSON.stringify({ query: query })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
+            // Шаг 2: Если есть даты, применяем фильтрацию
+            if (startDate.value && endDate.value) {
+                const filterParams = new URLSearchParams({
+                    query_key: data.query_key,
+                    page: page.toString()
+                });
+
+                if (startDate.value) filterParams.append('start_date', startDate.value);
+                if (endDate.value) filterParams.append('end_date', endDate.value);
+
+                return fetch(`/filter?${filterParams.toString()}`);
+            }
+            return Promise.resolve({ ok: true, json: () => data });
         })
         .then(response => response.json())
         .then(data => {
