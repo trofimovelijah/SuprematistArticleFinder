@@ -11,6 +11,8 @@
 body {
     background-color: var(--background);
     font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
 .suprematism-container {
@@ -33,10 +35,10 @@ body {
 
 .content-section {
     position: relative;
-    width: 60%;
+    width: 100%;
     min-height: 100vh;
     margin-left: 40%;
-    padding: 3rem;
+    padding: 2rem;
     background-color: var(--background);
 }
 
@@ -82,48 +84,66 @@ body {
 }
 
 .search-container {
-    max-width: 1000px;
+    width: 100%;
+    max-width: 800px;
     margin: 0 auto;
-    padding: 0;
+    padding: 0 2rem;
 }
 
 .search-form {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
+    width: 100%;
 }
 
-.search-form input {
+.search-form input[type="text"] {
+    width: 100%;
+    height: 50px;
     background-color: var(--white);
-    border: 1px solid var(--primary-black);
-    padding: 0.75rem;
+    border: 2px solid var(--primary-black);
+    padding: 0 1rem;
+    font-size: 1rem;
 }
 
 .search-controls {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
+    width: 100%;
 }
 
 .date-filters {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1rem;
+    flex-grow: 1;
 }
 
 .date-filters input {
-    width: 130px;
+    width: 160px;
+    height: 50px;
+    padding: 0 1rem;
+    border: 2px solid var(--primary-black);
+    background-color: var(--white);
+    font-size: 1rem;
+}
+
+.date-filters span {
+    color: var(--primary-black);
+    font-weight: bold;
 }
 
 #searchButton {
-    height: 38px;
+    min-width: 120px;
+    height: 50px;
     padding: 0 2rem;
-    margin-left: 1rem;
     background-color: var(--primary-black);
     color: var(--white);
     border: none;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    font-size: 1rem;
 }
 
 #searchButton:hover {
@@ -131,14 +151,15 @@ body {
 }
 
 .results-container {
-    max-width: 1000px;
+    width: 100%;
+    max-width: 800px;
     margin: 2rem auto;
-    padding: 0;
+    padding: 0 2rem;
 }
 
 .result-item {
     border-left: 4px solid var(--primary-orange);
-    background-color: var(--background);
+    background-color: var(--white);
     margin-bottom: 2rem;
     padding: 2rem;
     transition: transform 0.3s ease;
@@ -150,19 +171,28 @@ body {
 
 .result-item h3 {
     color: var(--primary-black);
-    margin-bottom: 0.5rem;
+    margin: 0 0 1rem;
+}
+
+.result-item h3 a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.result-item h3 a:hover {
+    color: var(--primary-orange);
 }
 
 .result-date {
     color: var(--primary-gray);
     font-size: 0.9rem;
-    margin: 0.5rem 0;
+    margin-bottom: 1rem;
 }
 
 .result-snippet {
     color: var(--primary-black);
-    margin: 0.5rem 0;
-    line-height: 1.4;
+    line-height: 1.6;
+    margin: 0;
 }
 
 .pagination-container {
@@ -173,9 +203,10 @@ body {
 }
 
 .page-button {
+    min-width: 40px;
+    height: 40px;
     background-color: var(--white);
-    border: 1px solid var(--primary-black);
-    padding: 0.5rem 1rem;
+    border: 2px solid var(--primary-black);
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -191,10 +222,33 @@ body {
 }
 
 .total-results {
-    text-align: center;
+    text-align: left;
     margin-bottom: 2rem;
     font-size: 1.2rem;
     color: var(--primary-black);
+}
+
+@media (max-width: 1200px) {
+    .date-filters {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .date-filters input {
+        width: 100%;
+    }
+
+    .date-filters span {
+        display: none;
+    }
+
+    #searchButton {
+        width: 100%;
+    }
+
+    .search-controls {
+        flex-direction: column;
+    }
 }
 
 @media (max-width: 992px) {
@@ -213,25 +267,18 @@ body {
         margin-left: 0;
         padding: 2rem;
     }
+
+    .search-container,
+    .results-container {
+        padding: 0 1rem;
+    }
 }
 
-@media (max-width: 768px) {
-    .search-controls {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .date-filters {
-        flex-direction: column;
-    }
-    
-    .date-filters input {
-        width: 100%;
-    }
-    
+@media (max-width: 480px) {
+    .search-form input[type="text"],
+    .date-filters input,
     #searchButton {
-        width: 100%;
-        margin-left: 0;
-        margin-top: 1rem;
+        height: 44px;
+        font-size: 0.9rem;
     }
 }
