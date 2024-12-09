@@ -49,6 +49,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
             })
             .join('');
+        
+        // Обновляем видимость кнопки экспорта
+        updateExportButtonVisibility(results.length);
     }
 
     function createPagination(totalPages) {
@@ -190,6 +193,28 @@ document.addEventListener('DOMContentLoaded', function() {
             applyFilters();
         }
     });
+
+    // Получаем кнопку экспорта
+    const exportButton = document.getElementById('exportButton');
+
+    // Функция для экспорта результатов
+    function exportResults() {
+        if (!searchState.query_key) return;
+        
+        const params = new URLSearchParams({
+            query_key: searchState.query_key
+        });
+        
+        window.location.href = `/export?${params.toString()}`;
+    }
+
+    // Добавляем обработчик события для кнопки экспорта
+    exportButton.addEventListener('click', exportResults);
+
+    // Функция для управления видимостью кнопки экспорта
+    function updateExportButtonVisibility(total) {
+        exportButton.style.display = total > 0 ? 'block' : 'none';
+    }
 
     window.changePage = function(page) {
         if (page !== currentPage) {

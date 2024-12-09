@@ -288,6 +288,25 @@ body {
 }
 
 .total-results {
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.export-button {
+    padding: 0.5rem 1rem;
+    background-color: var(--primary-black);
+    color: var(--white);
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.export-button:hover {
+    background-color: var(--primary-orange);
+}
     text-align: left;
     margin-bottom: 2rem;
     font-size: 1.2rem;

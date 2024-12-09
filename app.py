@@ -2,9 +2,11 @@ import os
 import json
 import logging
 import math
+import csv
+import io
 from datetime import datetime, date
 import requests
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, Response
 from googletrans import Translator, LANGUAGES
 
 # Настройка логирования
@@ -333,6 +335,53 @@ def filter_results():
         return jsonify({
             'status': 'error',
             'error': 'Ошибка при фильтрации результатов'
+        }), 500
+
+@app.route('/export')
+def export_results():
+    try:
+        query_key = request.args.get('query_key')
+        if not query_key or query_key not in search_cache:
+            return jsonify({
+                'status': 'error',
+                'error': 'Недопустимый ключ запроса'
+            }), 400
+
+        # Получаем результаты из кэша
+        results = search_cache[query_key]
+        
+        # Создаем CSV файл в памяти
+        output = io.StringIO()
+        writer = csv.writer(output, quoting=csv.QUOTE_NONNUMERIC)
+        
+        # Записываем заголовки
+        writer.writerow(['Название', 'Дата публикации', 'Описание', 'URL'])
+        
+        # Записываем данные
+        for result in results:
+            writer.writerow([
+                result.get('title', ''),
+                result.get('published_date', 'Дата не указана'),
+                result.get('snippet', ''),
+                result.get('url', '')
+            ])
+            
+        # Подготавливаем ответ
+        output.seek(0)
+        return Response(
+            output.getvalue(),
+            mimetype='text/csv',
+            headers={
+                'Content-Disposition': 'attachment; filename=search_results.csv',
+                'Content-Type': 'text/csv; charset=utf-8'
+            }
+        )
+
+    except Exception as e:
+        logger.error(f"Export error: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'error': 'Ошибка при экспорте результатов'
         }), 500
 
 if __name__ == '__main__':
