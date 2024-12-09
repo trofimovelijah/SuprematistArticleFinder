@@ -116,19 +116,29 @@ def search():
         }
 
         try:
+            # Формируем параметры запроса
+            request_params = {
+                "api_key": TAVILY_API_KEY,
+                "query": search_query,
+                "include_domains": ["arxiv.org"],
+                "search_depth": "advanced",
+                "max_results": 100,
+                "get_content": True,
+                "summarize": True,
+                "search_type": "news"
+            }
+            
+            logger.debug(f"Request params: {request_params}")
+            
             response = requests.post(
                 tavily_url,
-                json={
-                    "api_key": TAVILY_API_KEY,
-                    "query": search_query,
-                    "include_domains": ["arxiv.org"],
-                    "search_depth": "advanced",
-                    "max_results": 100,
-                    "get_content": True,
-                    "summarize": True
-                },
+                json=request_params,
                 timeout=30
             )
+            
+            response.raise_for_status()
+            search_data = response.json()
+            logger.debug(f"Search response: {json.dumps(search_data, indent=2)}")
             response.raise_for_status()
             search_data = response.json()
         except requests.exceptions.RequestException as e:
