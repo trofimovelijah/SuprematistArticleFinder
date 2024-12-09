@@ -53,9 +53,24 @@ document.addEventListener('DOMContentLoaded', function() {
         createPagination(data.total_pages);
     }
 
+    // Функция для проверки валидности даты
+    function isValidDate(dateString) {
+        if (!dateString) return true;
+        const selectedDate = new Date(dateString);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return selectedDate <= today;
+    }
+
     function performSearch(page = 1) {
         const query = searchInput.value.trim();
         if (!query) return;
+
+        // Проверка дат
+        if (!isValidDate(startDate.value) || !isValidDate(endDate.value)) {
+            displayError('Дата не может быть больше текущей');
+            return;
+        }
 
         showLoading();
         currentPage = page; // Устанавливаем currentPage до запроса
@@ -123,4 +138,14 @@ document.addEventListener('DOMContentLoaded', function() {
             performSearch(page);
         }
     };
+
+    // Обработчики изменения дат
+    [startDate, endDate].forEach(dateInput => {
+        dateInput.addEventListener('change', function() {
+            if (!isValidDate(this.value)) {
+                this.value = ''; // Сбрасываем невалидное значение
+                displayError('Дата не может быть больше текущей');
+            }
+        });
+    });
 });

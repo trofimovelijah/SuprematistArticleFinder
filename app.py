@@ -113,7 +113,8 @@ def translate_to_english(text):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    today = date.today().strftime('%Y-%m-%d')
+    return render_template('index.html', today=today)
 
 def validate_dates(start_date, end_date):
     """Валидация дат"""
