@@ -60,20 +60,25 @@ def filter_results_by_date(results, start_date, end_date):
                 
             try:
                 # Преобразуем строку даты в формате MM.YYYY в объект datetime
-                pub_date = datetime.strptime(pub_date_str, '%m.%Y').date()
-                # Сравниваем только год и месяц
-                pub_date = pub_date.replace(day=1)
+                pub_date = datetime.strptime(pub_date_str, '%m.%Y').date().replace(day=1)
                 
-                if start and end:
-                    if start.replace(day=1) <= pub_date <= end.replace(day=1):
+                # Приводим даты к началу месяца для корректного сравнения
+                start_date_normalized = start.replace(day=1) if start else None
+                end_date_normalized = end.replace(day=1) if end else None
+                today_normalized = today.replace(day=1)
+                
+                # Проверяем условия в зависимости от наличия дат
+                if start_date_normalized and end_date_normalized:
+                    if start_date_normalized <= pub_date <= end_date_normalized:
                         filtered_results.append(result)
-                elif start and not end:
-                    if start.replace(day=1) <= pub_date <= today.replace(day=1):
+                elif start_date_normalized:
+                    if start_date_normalized <= pub_date <= today_normalized:
                         filtered_results.append(result)
-                elif end and not start:
-                    if pub_date <= end.replace(day=1):
+                elif end_date_normalized:
+                    if pub_date <= end_date_normalized:
                         filtered_results.append(result)
-            except ValueError:
+            except ValueError as e:
+                logger.error(f"Error parsing date: {e}")
                 continue
                 
         return filtered_results
