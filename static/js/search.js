@@ -58,7 +58,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!dateString) return true;
         const selectedDate = new Date(dateString);
         const today = new Date();
+        
+        // Устанавливаем время в полночь для корректного сравнения
+        selectedDate.setHours(0, 0, 0, 0);
         today.setHours(0, 0, 0, 0);
+        
+        // Проверяем, что выбранная дата не превышает текущую
         return selectedDate <= today;
     }
 

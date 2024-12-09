@@ -123,7 +123,9 @@ def search():
                     "query": search_query,
                     "include_domains": ["arxiv.org"],
                     "search_depth": "advanced",
-                    "max_results": 100
+                    "max_results": 100,
+                    "get_content": True,
+                    "summarize": True
                 },
                 timeout=30
             )
