@@ -218,14 +218,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    let lastSearchResults = null; // Переменная для хранения последних результатов поиска
+
+    // Обновляем displayResults для сохранения результатов
+    const originalDisplayResults = displayResults;
+    displayResults = function(data) {
+        lastSearchResults = data.results; // Сохраняем результаты
+        originalDisplayResults(data);
+    };
+
     // Обработчик изменения сортировки
     document.getElementById('sortOrder').addEventListener('change', function() {
-        if (resultsContainer.innerHTML) { // Если есть результаты
-            const results = search_cache; // Используем кэшированные результаты
+        if (lastSearchResults) { // Если есть результаты
             displayResults({
                 status: 'success',
-                results: results,
-                total: results.length
+                results: lastSearchResults,
+                total: lastSearchResults.length
             });
         }
     });
