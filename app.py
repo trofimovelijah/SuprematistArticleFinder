@@ -116,7 +116,17 @@ def search():
         }
 
         try:
-            response = requests.get(tavily_url, params=params, timeout=30)
+            response = requests.post(
+                tavily_url,
+                json={
+                    "api_key": TAVILY_API_KEY,
+                    "query": search_query,
+                    "include_domains": ["arxiv.org"],
+                    "search_depth": "advanced",
+                    "max_results": 100
+                },
+                timeout=30
+            )
             response.raise_for_status()
             search_data = response.json()
         except requests.exceptions.RequestException as e:
