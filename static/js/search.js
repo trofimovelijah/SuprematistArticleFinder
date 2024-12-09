@@ -94,8 +94,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error(data.error);
             }
 
-            // Шаг 2: Если есть даты, применяем фильтрацию
-            if (startDate.value && endDate.value) {
+            // Шаг 2: Если есть хотя бы одна дата, применяем фильтрацию
+            if (startDate.value || endDate.value) {
                 const filterParams = new URLSearchParams({
                     query_key: data.query_key,
                     page: page.toString()

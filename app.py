@@ -19,33 +19,38 @@ search_cache = {}
 
 def validate_dates(start_date, end_date):
     """Валидация дат"""
-    if not (start_date and end_date):
-        return True, None
-        
+    today = date.today()
+    
     try:
-        start = datetime.strptime(start_date, '%Y-%m-%d').date()
-        end = datetime.strptime(end_date, '%Y-%m-%d').date()
-        
-        today = date.today()
-        
-        if start > today or end > today:
-            return False, 'Дата не может быть больше текущей'
-            
-        if start > end:
-            return False, 'Начальная дата не может быть больше конечной'
-            
+        if start_date:
+            start = datetime.strptime(start_date, '%Y-%m-%d').date()
+            if start > today:
+                return False, 'Дата не может быть больше текущей'
+                
+        if end_date:
+            end = datetime.strptime(end_date, '%Y-%m-%d').date()
+            if end > today:
+                return False, 'Дата не может быть больше текущей'
+                
+        if start_date and end_date:
+            start = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end = datetime.strptime(end_date, '%Y-%m-%d').date()
+            if start > end:
+                return False, 'Начальная дата не может быть больше конечной'
+                
         return True, None
     except ValueError:
         return False, 'Неверный формат даты'
 
 def filter_results_by_date(results, start_date, end_date):
     """Фильтрация результатов по датам"""
-    if not (start_date and end_date):
+    if not (start_date or end_date):
         return results
         
     try:
-        start = datetime.strptime(start_date, '%Y-%m-%d').date()
-        end = datetime.strptime(end_date, '%Y-%m-%d').date()
+        today = date.today()
+        start = datetime.strptime(start_date, '%Y-%m-%d').date() if start_date else None
+        end = datetime.strptime(end_date, '%Y-%m-%d').date() if end_date else today
         
         filtered_results = []
         for result in results:
@@ -57,8 +62,17 @@ def filter_results_by_date(results, start_date, end_date):
                 # Преобразуем строку даты в формате MM.YYYY в объект datetime
                 pub_date = datetime.strptime(pub_date_str, '%m.%Y').date()
                 # Сравниваем только год и месяц
-                if start.replace(day=1) <= pub_date.replace(day=1) <= end.replace(day=1):
-                    filtered_results.append(result)
+                pub_date = pub_date.replace(day=1)
+                
+                if start and end:
+                    if start.replace(day=1) <= pub_date <= end.replace(day=1):
+                        filtered_results.append(result)
+                elif start and not end:
+                    if start.replace(day=1) <= pub_date <= today.replace(day=1):
+                        filtered_results.append(result)
+                elif end and not start:
+                    if pub_date <= end.replace(day=1):
+                        filtered_results.append(result)
             except ValueError:
                 continue
                 
