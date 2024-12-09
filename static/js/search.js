@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!query) return;
 
         showLoading();
+        currentPage = page; // Устанавливаем currentPage до запроса
 
         const searchParams = new URLSearchParams({
             q: query,
@@ -70,8 +71,10 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch(`/search?${searchParams.toString()}`)
             .then(response => response.json())
             .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
                 displayResults(data);
-                currentPage = page;
                 window.scrollTo(0, 0);
             })
             .catch(error => {
@@ -85,13 +88,19 @@ document.addEventListener('DOMContentLoaded', function() {
         
         for (let i = 1; i <= totalPages; i++) {
             const isCurrentPage = i === currentPage;
-            paginationHtml += `
-                <button class="page-button ${isCurrentPage ? 'active' : ''}" 
-                        onclick="changePage(${i})"
-                        ${isCurrentPage ? 'disabled' : ''}>
-                    ${i}
-                </button>
-            `;
+            if (isCurrentPage) {
+                paginationHtml += `
+                    <button class="page-button active" disabled>
+                        ${i}
+                    </button>
+                `;
+            } else {
+                paginationHtml += `
+                    <button class="page-button" onclick="changePage(${i})">
+                        ${i}
+                    </button>
+                `;
+            }
         }
         
         paginationContainer.innerHTML = paginationHtml;
@@ -99,15 +108,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     searchInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
+            currentPage = 1;
             performSearch(1);
         }
     });
 
     searchButton.addEventListener('click', function() {
+        currentPage = 1;
         performSearch(1);
     });
 
     window.changePage = function(page) {
-        performSearch(page);
+        if (page !== currentPage) {
+            performSearch(page);
+        }
     };
 });
