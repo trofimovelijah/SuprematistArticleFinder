@@ -76,9 +76,13 @@ document.addEventListener('DOMContentLoaded', function() {
         currentPage = page; // Устанавливаем currentPage до запроса
 
         const searchParams = new URLSearchParams({
-            q: query,
-            page: page
+            q: query
         });
+
+        // Добавляем параметр page только если указаны даты или страница > 1
+        if (startDate.value || endDate.value || page > 1) {
+            searchParams.append('page', page);
+        }
 
         if (startDate.value) searchParams.append('start_date', startDate.value);
         if (endDate.value) searchParams.append('end_date', endDate.value);
