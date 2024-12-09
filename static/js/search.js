@@ -6,15 +6,62 @@ document.addEventListener('DOMContentLoaded', function() {
     const resultsContainer = document.getElementById('searchResults');
     const totalResults = document.getElementById('totalResults');
     const paginationContainer = document.getElementById('pagination');
+    const loadingIndicator = document.getElementById('loadingIndicator');
 
     let currentPage = 1;
 
-    function performSearch() {
+    function showLoading() {
+        loadingIndicator.style.display = 'flex';
+        resultsContainer.innerHTML = '';
+        totalResults.textContent = '';
+        paginationContainer.innerHTML = '';
+    }
+
+    function hideLoading() {
+        loadingIndicator.style.display = 'none';
+    }
+
+    function displayError(message) {
+        hideLoading();
+        resultsContainer.innerHTML = `<div class="error">${message}</div>`;
+    }
+
+    function displayResults(data) {
+        hideLoading();
+        
+        if (data.error) {
+            displayError(data.error);
+            return;
+        }
+
+        totalResults.textContent = `Найдено результатов: ${data.total}`;
+        
+        resultsContainer.innerHTML = data.results
+            .map(result => {
+                const date = result.published_date || 'Дата не указана';
+                const snippet = result.snippet || 'Описание отсутствует';
+                return `
+                    <div class="result-item">
+                        <h3><a href="${result.url}" target="_blank">${result.title}</a></h3>
+                        <div class="result-date">Дата публикации: ${date}</div>
+                        <p class="result-snippet">${snippet}</p>
+                    </div>
+                `;
+            })
+            .join('');
+
+        createPagination(data.total_pages);
+    }
+
+    function performSearch(page = 1) {
         const query = searchInput.value.trim();
         if (!query) return;
 
+        showLoading();
+
         const searchParams = new URLSearchParams({
-            q: query
+            q: query,
+            page: page
         });
 
         if (startDate.value) searchParams.append('start_date', startDate.value);
@@ -23,37 +70,16 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch(`/search?${searchParams.toString()}`)
             .then(response => response.json())
             .then(data => {
-                if (data.error) {
-                    resultsContainer.innerHTML = `<div class="error">${data.error}</div>`;
-                    return;
-                }
-
-                totalResults.textContent = `Найдено результатов: ${data.total}`;
-                
-                resultsContainer.innerHTML = data.results
-                    .map(result => {
-                        const date = result.published_date || 'Дата не указана';
-                        const snippet = result.snippet || 'Описание отсутствует';
-                        return `
-                            <div class="result-item">
-                                <h3><a href="${result.url}" target="_blank">${result.title}</a></h3>
-                                <div class="result-date">Дата публикации: ${date}</div>
-                                <p class="result-snippet">${snippet}</p>
-                            </div>
-                        `;
-                    })
-                    .join('');
-
-                // Обновить пагинацию
-                createPagination(data.total_pages);
+                displayResults(data);
+                currentPage = page;
+                window.scrollTo(0, 0);
             })
             .catch(error => {
                 console.error('Error:', error);
-                resultsContainer.innerHTML = '<div class="error">Произошла ошибка при поиске</div>';
+                displayError('Произошла ошибка при поиске');
             });
     }
 
-    // Обновить функцию создания пагинации
     function createPagination(totalPages) {
         let paginationHtml = '';
         
@@ -69,66 +95,17 @@ document.addEventListener('DOMContentLoaded', function() {
         paginationContainer.innerHTML = paginationHtml;
     }
 
-    // Обработчик нажатия Enter
     searchInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
-            currentPage = 1;
-            performSearch();
+            performSearch(1);
         }
     });
 
-    // Обработчик кнопки поиска
     searchButton.addEventListener('click', function() {
-        currentPage = 1;
-        performSearch();
+        performSearch(1);
     });
 
-    // Функция смены страницы
-    function changePage(page) {
-        const query = searchInput.value.trim();
-        if (!query) return;
-
-        const searchParams = new URLSearchParams({
-            q: query,
-            page: page
-        });
-
-        if (startDate.value) searchParams.append('start_date', startDate.value);
-        if (endDate.value) searchParams.append('end_date', endDate.value);
-
-        fetch(`/search?${searchParams.toString()}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    resultsContainer.innerHTML = `<div class="error">${data.error}</div>`;
-                    return;
-                }
-
-                totalResults.textContent = `Найдено результатов: ${data.total}`;
-                
-                resultsContainer.innerHTML = data.results
-                    .map(result => {
-                        const date = result.published_date || 'Дата не указана';
-                        const snippet = result.snippet || 'Описание отсутствует';
-                        return `
-                            <div class="result-item">
-                                <h3><a href="${result.url}" target="_blank">${result.title}</a></h3>
-                                <div class="result-date">Дата публикации: ${date}</div>
-                                <p class="result-snippet">${snippet}</p>
-                            </div>
-                        `;
-                    })
-                    .join('');
-
-                currentPage = page;
-                createPagination(data.total_pages);
-                window.scrollTo(0, 0);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                resultsContainer.innerHTML = '<div class="error">Произошла ошибка при поиске</div>';
-            });
-    }
-
-    window.changePage = changePage;
+    window.changePage = function(page) {
+        performSearch(page);
+    };
 });
