@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
         results: [],
         total: 0,
         currentPage: 1,
-        totalPages: 0
+        total_pages: 0
     };
 
     function showLoading() {
@@ -69,43 +69,33 @@ document.addEventListener('DOMContentLoaded', function() {
         return results.slice(startIdx, endIdx);
     }
 
-    function updateResults(newResults) {
-        // Сначала сортируем результаты если нужно
+    function updateResults(newResults, total, total_pages) {
+        // Обновляем состояние
         const sortOrder = document.getElementById('sortOrder').value;
         const sortedResults = sortResults(newResults, sortOrder);
         
-        // Обновляем состояние
         searchState = {
             results: sortedResults,
-            total: sortedResults.length,
+            total: total,
             currentPage: currentPage,
-            totalPages: Math.ceil(sortedResults.length / resultsPerPage)
+            total_pages: total_pages
         };
 
         // Получаем результаты для текущей страницы
         const pageResults = getPageResults(sortedResults, currentPage);
 
         // Обновляем отображение
-        displayResults({
-            status: 'success',
-            results: pageResults,
-            total: searchState.total,
-            current_page: currentPage,
-            total_pages: searchState.totalPages
-        });
+        displayResults(pageResults);
+        createPagination(total_pages);
+        
+        // Обновляем счетчик результатов
+        totalResults.textContent = `Найдено результатов: ${total}`;
     }
 
-    function displayResults(data) {
+    function displayResults(results) {
         hideLoading();
         
-        if (data.error) {
-            displayError(data.error);
-            return;
-        }
-
-        totalResults.textContent = `Найдено результатов: ${data.total}`;
-        
-        resultsContainer.innerHTML = data.results
+        resultsContainer.innerHTML = results
             .map(result => {
                 const date = result.published_date || 'Дата не указана';
                 const snippet = result.snippet || 'Описание отсутствует';
@@ -118,8 +108,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
             })
             .join('');
-
-        createPagination(data.total_pages);
     }
 
     function isValidDate(dateString) {
@@ -159,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.error) {
                 throw new Error(data.error);
             }
-            updateResults(data.results);
+            updateResults(data.results, data.total, data.total_pages);
             window.scrollTo(0, 0);
         })
         .catch(error => {
@@ -206,7 +194,11 @@ document.addEventListener('DOMContentLoaded', function() {
     window.changePage = function(page) {
         if (page !== currentPage && searchState.results.length > 0) {
             currentPage = page;
-            updateResults(searchState.results);
+            // Используем существующие результаты для пагинации
+            const pageResults = getPageResults(searchState.results, currentPage);
+            displayResults(pageResults);
+            createPagination(searchState.total_pages);
+            window.scrollTo(0, 0);
         }
     };
 
@@ -223,7 +215,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Обработчик изменения сортировки
     document.getElementById('sortOrder').addEventListener('change', function() {
         if (searchState.results.length > 0) {
-            updateResults(searchState.results);
+            const sortOrder = this.value;
+            const sortedResults = sortResults(searchState.results, sortOrder);
+            searchState.results = sortedResults;
+            
+            // Обновляем текущую страницу с новой сортировкой
+            const pageResults = getPageResults(sortedResults, currentPage);
+            displayResults(pageResults);
         }
     });
 });
