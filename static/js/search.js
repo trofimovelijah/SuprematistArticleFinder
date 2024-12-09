@@ -89,18 +89,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(searchData)
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-                displayResults(data);
-                window.scrollTo(0, 0);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                displayError('Произошла ошибка при поиске');
-            });
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            displayResults(data);
+            window.scrollTo(0, 0);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            displayError('Произошла ошибка при поиске');
+        });
     }
 
     function createPagination(totalPages) {
