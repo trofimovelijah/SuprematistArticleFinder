@@ -5,6 +5,7 @@ import math
 from datetime import datetime, date
 import requests
 from flask import Flask, request, jsonify, render_template
+from googletrans import Translator, LANGUAGES
 # Настройка логирования
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -16,6 +17,34 @@ TAVILY_API_KEY = os.getenv('TAVILY_API_KEY')
 
 # Кэш для хранения результатов поиска
 search_cache = {}
+# Инициализация переводчика
+translator = Translator()
+
+def translate_search_query(query):
+    """
+    Переводит поисковый запрос и формирует двуязычный запрос с OR
+    """
+    try:
+        # Определяем язык запроса
+        detected = translator.detect(query)
+        
+        if detected.lang == 'ru':
+            # Если запрос на русском, переводим на английский
+            translation = translator.translate(query, src='ru', dest='en')
+            combined_query = f"{query} OR {translation.text}"
+        else:
+            # Если запрос не на русском, считаем что это английский и переводим на русский
+            translation = translator.translate(query, src='en', dest='ru')
+            combined_query = f"{query} OR {translation.text}"
+            
+        logger.debug(f"Original query: {query}")
+        logger.debug(f"Translated query: {translation.text}")
+        logger.debug(f"Combined query: {combined_query}")
+        
+        return combined_query
+    except Exception as e:
+        logger.error(f"Translation error: {str(e)}")
+        return query  # В случае ошибки возвращаем оригинальный запрос
 
 def validate_dates(start_date, end_date):
     """Валидация дат"""
@@ -114,6 +143,9 @@ def search():
                 'status': 'error',
                 'error': 'Отсутствует поисковый запрос'
             }), 400
+            
+        # Переводим запрос и добавляем OR оператор
+        combined_query = translate_search_query(query)
 
         try:
             page = max(1, int(data.get('page', 1)))
@@ -121,7 +153,7 @@ def search():
             page = 1
 
         # Формируем поисковый запрос с ограничением по домену
-        search_query = f"site:arxiv.org {query}"
+        search_query = f"site:arxiv.org {combined_query}"
         logger.debug(f"Search query: {search_query}")
 
         # Выполняем поиск через Tavily API
@@ -167,6 +199,7 @@ def search():
 
         # Обработка результатов
         results = []
+        seen_urls = set()
         for result in search_data.get('results', []):
             # Извлечение даты из URL или описания
             published_date = "Дата не указана"
@@ -194,12 +227,16 @@ def search():
             if not snippet and result.get('raw_content'):
                 snippet = result['raw_content'][:500]  # Ограничиваем длину сниппета
                 
-            results.append({
-                'url': result.get('url', ''),
-                'title': result.get('title', 'Без названия'),
-                'snippet': snippet,
-                'published_date': published_date
-            })
+            url = result.get('url', '')
+            # Добавляем только уникальные результаты
+            if url not in seen_urls:
+                seen_urls.add(url)
+                results.append({
+                    'url': url,
+                    'title': result.get('title', 'Без названия'),
+                    'snippet': snippet,
+                    'published_date': published_date
+                })
 
         # Пагинация
         results_per_page = 20
