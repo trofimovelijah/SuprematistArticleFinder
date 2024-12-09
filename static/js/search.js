@@ -9,6 +9,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const loadingIndicator = document.getElementById('loadingIndicator');
 
     let currentPage = 1;
+    const resultsPerPage = 20;
+
+    // Состояние поиска
+    let searchState = {
+        results: [],
+        total: 0,
+        currentPage: 1,
+        totalPages: 0
+    };
 
     function showLoading() {
         loadingIndicator.style.display = 'flex';
@@ -53,6 +62,39 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Получение подмножества результатов для текущей страницы
+    function getPageResults(results, page) {
+        const startIdx = (page - 1) * resultsPerPage;
+        const endIdx = startIdx + resultsPerPage;
+        return results.slice(startIdx, endIdx);
+    }
+
+    function updateResults(newResults) {
+        // Сначала сортируем результаты если нужно
+        const sortOrder = document.getElementById('sortOrder').value;
+        const sortedResults = sortResults(newResults, sortOrder);
+        
+        // Обновляем состояние
+        searchState = {
+            results: sortedResults,
+            total: sortedResults.length,
+            currentPage: currentPage,
+            totalPages: Math.ceil(sortedResults.length / resultsPerPage)
+        };
+
+        // Получаем результаты для текущей страницы
+        const pageResults = getPageResults(sortedResults, currentPage);
+
+        // Обновляем отображение
+        displayResults({
+            status: 'success',
+            results: pageResults,
+            total: searchState.total,
+            current_page: currentPage,
+            total_pages: searchState.totalPages
+        });
+    }
+
     function displayResults(data) {
         hideLoading();
         
@@ -80,40 +122,21 @@ document.addEventListener('DOMContentLoaded', function() {
         createPagination(data.total_pages);
     }
 
-    // Функция для проверки валидности даты
     function isValidDate(dateString) {
         if (!dateString) return true;
         const selectedDate = new Date(dateString);
         const today = new Date();
         
-        // Устанавливаем время в полночь для корректного сравнения
         selectedDate.setHours(0, 0, 0, 0);
         today.setHours(0, 0, 0, 0);
         
-        // Проверяем, что выбранная дата не превышает текущую
         return selectedDate <= today;
-    }
-
-    // Храним все результаты поиска
-    let searchState = {
-        results: null,
-        total: 0,
-        currentPage: 1,
-        totalPages: 0
-    };
-
-    // Функция для получения подмножества результатов для текущей страницы
-    function getPageResults(results, page, resultsPerPage = 20) {
-        const startIdx = (page - 1) * resultsPerPage;
-        const endIdx = startIdx + resultsPerPage;
-        return results.slice(startIdx, endIdx);
     }
 
     function performSearch(page = 1) {
         const query = searchInput.value.trim();
         if (!query) return;
 
-        // Проверка дат
         if (!isValidDate(startDate.value) || !isValidDate(endDate.value)) {
             displayError('Дата не может быть больше текущей');
             return;
@@ -122,15 +145,13 @@ document.addEventListener('DOMContentLoaded', function() {
         showLoading();
         currentPage = page;
 
-        // Выполняем поиск
         fetch('/search', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ 
-                query: query,
-                page: page
+                query: query
             })
         })
         .then(response => response.json())
@@ -138,31 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.error) {
                 throw new Error(data.error);
             }
-
-            // Сохраняем все результаты
-            searchState = {
-                results: data.results,
-                total: data.total,
-                currentPage: page,
-                totalPages: data.total_pages
-            };
-
-            // Сортируем результаты если нужно
-            const sortOrder = document.getElementById('sortOrder').value;
-            if (sortOrder) {
-                searchState.results = sortResults(searchState.results, sortOrder);
-            }
-
-            // Отображаем только результаты текущей страницы
-            const pageResults = getPageResults(searchState.results, page);
-            displayResults({
-                status: 'success',
-                results: pageResults,
-                total: searchState.total,
-                current_page: page,
-                total_pages: searchState.totalPages
-            });
-
+            updateResults(data.results);
             window.scrollTo(0, 0);
         })
         .catch(error => {
@@ -207,16 +204,9 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     window.changePage = function(page) {
-        if (page !== currentPage && searchState.results) {
+        if (page !== currentPage && searchState.results.length > 0) {
             currentPage = page;
-            const pageResults = getPageResults(searchState.results, page);
-            displayResults({
-                status: 'success',
-                results: pageResults,
-                total: searchState.total,
-                current_page: page,
-                total_pages: searchState.totalPages
-            });
+            updateResults(searchState.results);
         }
     };
 
@@ -224,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
     [startDate, endDate].forEach(dateInput => {
         dateInput.addEventListener('change', function() {
             if (!isValidDate(this.value)) {
-                this.value = ''; // Сбрасываем невалидное значение
+                this.value = ''; 
                 displayError('Дата не может быть больше текущей');
             }
         });
@@ -232,19 +222,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Обработчик изменения сортировки
     document.getElementById('sortOrder').addEventListener('change', function() {
-        if (searchState.results) {
-            const sortOrder = this.value;
-            searchState.results = sortResults(searchState.results, sortOrder);
-            
-            // Отображаем текущую страницу с новой сортировкой
-            const pageResults = getPageResults(searchState.results, currentPage);
-            displayResults({
-                status: 'success',
-                results: pageResults,
-                total: searchState.total,
-                current_page: currentPage,
-                total_pages: searchState.totalPages
-            });
+        if (searchState.results.length > 0) {
+            updateResults(searchState.results);
         }
     });
 });
