@@ -218,22 +218,49 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    let lastSearchResults = null; // Переменная для хранения последних результатов поиска
+    // Храним все результаты поиска
+    let searchState = {
+        results: null,
+        total: 0,
+        currentPage: 1,
+        totalPages: 0
+    };
 
-    // Обновляем displayResults для сохранения результатов
+    // Обновляем оригинальный displayResults для сохранения состояния
     const originalDisplayResults = displayResults;
     displayResults = function(data) {
-        lastSearchResults = data.results; // Сохраняем результаты
-        originalDisplayResults(data);
+        // Сохраняем полное состояние поиска
+        searchState = {
+            results: data.results,
+            total: data.total,
+            currentPage: data.current_page || 1,
+            totalPages: data.total_pages || 1
+        };
+        
+        // Отображаем результаты с текущей сортировкой
+        const sortOrder = document.getElementById('sortOrder').value;
+        const sortedResults = sortResults(searchState.results, sortOrder);
+        
+        // Вызываем оригинальную функцию с отсортированными результатами
+        originalDisplayResults({
+            ...data,
+            results: sortedResults
+        });
     };
 
     // Обработчик изменения сортировки
     document.getElementById('sortOrder').addEventListener('change', function() {
-        if (lastSearchResults) { // Если есть результаты
+        if (searchState.results) {
+            const sortOrder = this.value;
+            const sortedResults = sortResults(searchState.results, sortOrder);
+            
+            // Обновляем отображение с сохранением общего количества
             displayResults({
                 status: 'success',
-                results: lastSearchResults,
-                total: lastSearchResults.length
+                results: sortedResults,
+                total: searchState.total,
+                current_page: searchState.currentPage,
+                total_pages: searchState.totalPages
             });
         }
     });
