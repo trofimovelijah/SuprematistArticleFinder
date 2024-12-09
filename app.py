@@ -139,8 +139,6 @@ def search():
             response.raise_for_status()
             search_data = response.json()
             logger.debug(f"Search response: {json.dumps(search_data, indent=2)}")
-            response.raise_for_status()
-            search_data = response.json()
         except requests.exceptions.RequestException as e:
             logger.error(f"Tavily API error: {str(e)}")
             return jsonify({
@@ -172,10 +170,15 @@ def search():
                 except Exception:
                     pass
 
+            # Извлекаем и обрабатываем snippet
+            snippet = result.get('content', '') or result.get('snippet', '')
+            if not snippet and result.get('raw_content'):
+                snippet = result['raw_content'][:500]  # Ограничиваем длину сниппета
+                
             results.append({
                 'url': result.get('url', ''),
                 'title': result.get('title', 'Без названия'),
-                'snippet': result.get('snippet', ''),
+                'snippet': snippet,
                 'published_date': published_date
             })
 
