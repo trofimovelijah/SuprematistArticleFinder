@@ -4,7 +4,7 @@
     --primary-yellow: #E6B325;
     --primary-gray: #808080;
     --primary-beige: #E6D5B8;
-    --background: #F5F0E6;
+    --background: #F2EAE1;
     --white: #FFFFFF;
 }
 
@@ -29,7 +29,7 @@ body {
     top: 0;
     left: 0;
     padding: 2rem;
-    background-color: var(--background);
+    background: linear-gradient(to right, var(--background), #F5F0E6);
     z-index: 0;
 }
 
