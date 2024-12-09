@@ -67,7 +67,7 @@ def validate_dates(start_date, end_date):
             start = datetime.strptime(start_date, '%Y-%m-%d').date()
             end = datetime.strptime(end_date, '%Y-%m-%d').date()
             if start > end:
-                return False, 'Начальная дата не может быть больше конечной'
+                return False, 'Дата начала периода не может быть позже даты окончания периода'
                 
         return True, None
     except ValueError:

@@ -27,7 +27,7 @@ body {
     top: 0;
     width: 50%;
     height: 100vh;
-    background-color: var(--white);
+    background-color: var(--background);
     padding: 2rem; /* Retained from original */
     z-index: 0; /* Retained from original */
 }
