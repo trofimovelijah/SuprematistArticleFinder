@@ -63,11 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         totalResults.textContent = `Найдено результатов: ${data.total}`;
         
-        // Сортируем результаты
-        const sortOrder = document.getElementById('sortOrder').value;
-        const sortedResults = sortResults(data.results, sortOrder);
-        
-        resultsContainer.innerHTML = sortedResults
+        resultsContainer.innerHTML = data.results
             .map(result => {
                 const date = result.published_date || 'Дата не указана';
                 const snippet = result.snippet || 'Описание отсутствует';
@@ -98,6 +94,21 @@ document.addEventListener('DOMContentLoaded', function() {
         return selectedDate <= today;
     }
 
+    // Храним все результаты поиска
+    let searchState = {
+        results: null,
+        total: 0,
+        currentPage: 1,
+        totalPages: 0
+    };
+
+    // Функция для получения подмножества результатов для текущей страницы
+    function getPageResults(results, page, resultsPerPage = 20) {
+        const startIdx = (page - 1) * resultsPerPage;
+        const endIdx = startIdx + resultsPerPage;
+        return results.slice(startIdx, endIdx);
+    }
+
     function performSearch(page = 1) {
         const query = searchInput.value.trim();
         if (!query) return;
@@ -111,13 +122,16 @@ document.addEventListener('DOMContentLoaded', function() {
         showLoading();
         currentPage = page;
 
-        // Шаг 1: Выполняем поиск
+        // Выполняем поиск
         fetch('/search', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ query: query })
+            body: JSON.stringify({ 
+                query: query,
+                page: page
+            })
         })
         .then(response => response.json())
         .then(data => {
@@ -125,40 +139,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error(data.error);
             }
 
-            // Шаг 2: Если есть хотя бы одна дата, применяем фильтрацию
-            if (startDate.value || endDate.value) {
-                const filterParams = new URLSearchParams({
-                    query_key: data.query_key,
-                    page: page.toString()
-                });
+            // Сохраняем все результаты
+            searchState = {
+                results: data.results,
+                total: data.total,
+                currentPage: page,
+                totalPages: data.total_pages
+            };
 
-                // Если указана только начальная дата, добавляем текущую дату как конечную
-                if (startDate.value && !endDate.value) {
-                    const today = new Date().toISOString().split('T')[0];
-                    filterParams.append('start_date', startDate.value);
-                    filterParams.append('end_date', today);
-                }
-                // Если указана только конечная дата, добавляем 1980-01-01 как начальную
-                else if (!startDate.value && endDate.value) {
-                    filterParams.append('start_date', '1980-01-01');
-                    filterParams.append('end_date', endDate.value);
-                }
-                // Если указаны обе даты, используем их
-                else {
-                    filterParams.append('start_date', startDate.value);
-                    filterParams.append('end_date', endDate.value);
-                }
+            // Сортируем результаты если нужно
+            const sortOrder = document.getElementById('sortOrder').value;
+            if (sortOrder) {
+                searchState.results = sortResults(searchState.results, sortOrder);
+            }
 
-                return fetch(`/filter?${filterParams.toString()}`);
-            }
-            return Promise.resolve({ ok: true, json: () => data });
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                throw new Error(data.error);
-            }
-            displayResults(data);
+            // Отображаем только результаты текущей страницы
+            const pageResults = getPageResults(searchState.results, page);
+            displayResults({
+                status: 'success',
+                results: pageResults,
+                total: searchState.total,
+                current_page: page,
+                total_pages: searchState.totalPages
+            });
+
             window.scrollTo(0, 0);
         })
         .catch(error => {
@@ -203,8 +207,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     window.changePage = function(page) {
-        if (page !== currentPage) {
-            performSearch(page);
+        if (page !== currentPage && searchState.results) {
+            currentPage = page;
+            const pageResults = getPageResults(searchState.results, page);
+            displayResults({
+                status: 'success',
+                results: pageResults,
+                total: searchState.total,
+                current_page: page,
+                total_pages: searchState.totalPages
+            });
         }
     };
 
@@ -218,48 +230,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Храним все результаты поиска
-    let searchState = {
-        results: null,
-        total: 0,
-        currentPage: 1,
-        totalPages: 0
-    };
-
-    // Обновляем оригинальный displayResults для сохранения состояния
-    const originalDisplayResults = displayResults;
-    displayResults = function(data) {
-        // Сохраняем полное состояние поиска
-        searchState = {
-            results: data.results,
-            total: data.total,
-            currentPage: data.current_page || 1,
-            totalPages: data.total_pages || 1
-        };
-        
-        // Отображаем результаты с текущей сортировкой
-        const sortOrder = document.getElementById('sortOrder').value;
-        const sortedResults = sortResults(searchState.results, sortOrder);
-        
-        // Вызываем оригинальную функцию с отсортированными результатами
-        originalDisplayResults({
-            ...data,
-            results: sortedResults
-        });
-    };
-
     // Обработчик изменения сортировки
     document.getElementById('sortOrder').addEventListener('change', function() {
         if (searchState.results) {
             const sortOrder = this.value;
-            const sortedResults = sortResults(searchState.results, sortOrder);
+            searchState.results = sortResults(searchState.results, sortOrder);
             
-            // Обновляем отображение с сохранением общего количества
+            // Отображаем текущую страницу с новой сортировкой
+            const pageResults = getPageResults(searchState.results, currentPage);
             displayResults({
                 status: 'success',
-                results: sortedResults,
+                results: pageResults,
                 total: searchState.total,
-                current_page: searchState.currentPage,
+                current_page: currentPage,
                 total_pages: searchState.totalPages
             });
         }
