@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
         total: 0,
         currentPage: 1,
         total_pages: 0,
+        query_key: '',
         query: ''
     };
 
@@ -72,31 +73,21 @@ document.addEventListener('DOMContentLoaded', function() {
         paginationContainer.innerHTML = paginationHtml;
     }
 
-    function performSearch(page = 1) {
+    function performSearch() {
         const query = searchInput.value.trim();
         if (!query) return;
 
         showLoading();
-        currentPage = page;
-
-        const requestBody = {
-            query: query,
-            page: page
-        };
-
-        if (startDate.value) {
-            requestBody.start_date = startDate.value;
-        }
-        if (endDate.value) {
-            requestBody.end_date = endDate.value;
-        }
+        currentPage = 1;
 
         fetch('/search', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(requestBody)
+            body: JSON.stringify({
+                query: query
+            })
         })
         .then(response => response.json())
         .then(data => {
@@ -107,16 +98,14 @@ document.addEventListener('DOMContentLoaded', function() {
             searchState = {
                 results: data.results,
                 total: data.total,
-                currentPage: data.current_page,
+                currentPage: 1,
                 total_pages: data.total_pages,
+                query_key: data.query_key,
                 query: query
             };
 
-            displayResults(data.results);
-            totalResults.textContent = `Найдено результатов: ${data.total}`;
-            createPagination(data.total_pages);
+            applyFilters();
             window.scrollTo(0, 0);
-            hideLoading();
         })
         .catch(error => {
             console.error('Error:', error);
@@ -124,21 +113,54 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function applyFilters() {
+        const start = startDate.value;
+        const end = endDate.value;
+        const page = currentPage;
+
+        showLoading();
+
+        const params = new URLSearchParams({
+            query_key: searchState.query_key,
+            page: page
+        });
+
+        if (start) params.append('start_date', start);
+        if (end) params.append('end_date', end);
+
+        fetch(`/filter?${params.toString()}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                displayResults(data.results);
+                totalResults.textContent = `Найдено результатов: ${data.total}`;
+                createPagination(data.total_pages);
+                hideLoading();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                displayError('Произошла ошибка при фильтрации результатов');
+            });
+    }
+
     searchInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
-            currentPage = 1;
-            performSearch(1);
+            performSearch();
         }
     });
 
-    searchButton.addEventListener('click', function() {
-        currentPage = 1;
-        performSearch(1);
-    });
+    searchButton.addEventListener('click', performSearch);
+
+    startDate.addEventListener('change', applyFilters);
+    endDate.addEventListener('change', applyFilters);
 
     window.changePage = function(page) {
         if (page !== currentPage) {
-            performSearch(page);
+            currentPage = page;
+            applyFilters();
         }
     };
 });
