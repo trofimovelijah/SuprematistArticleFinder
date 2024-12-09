@@ -5,8 +5,6 @@ import math
 from datetime import datetime, date
 import requests
 from flask import Flask, request, jsonify, render_template
-from googletrans import Translator
-
 # Настройка логирования
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -15,9 +13,6 @@ app = Flask(__name__)
 
 # Получение API ключа из переменных окружения
 TAVILY_API_KEY = os.getenv('TAVILY_API_KEY')
-
-# Настройка переводчика
-translator = Translator()
 
 # Кэш для хранения результатов поиска
 search_cache = {}
@@ -106,21 +101,9 @@ def search():
         except (ValueError, TypeError):
             page = 1
 
-        # Перевод и нормализация запроса
-        try:
-            english_query = translator.translate(query, dest='en').text
-        except Exception as e:
-            logger.error(f"Translation error: {str(e)}")
-            return jsonify({
-                'status': 'error',
-                'error': 'Ошибка при переводе запроса'
-            }), 500
-            
         # Формируем поисковый запрос с ограничением по домену
-        search_query = f"site:arxiv.org {english_query}"
+        search_query = f"site:arxiv.org {query}"
         logger.debug(f"Search query: {search_query}")
-
-        logger.debug(f"Final search query: {search_query}")
 
         # Выполняем поиск через Tavily API
         tavily_url = "https://api.tavily.com/search"
