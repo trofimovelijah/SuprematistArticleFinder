@@ -1,0 +1,140 @@
+GET https://308c4491-49f2-4a6a-a5f6-36a31df7e43b-00-454bd2oi6qbi.pike.replit.dev/search?q=quantum+computing&page=2&start_date=2022-06-08&end_date=2024-06-11 200
+
+Response Headers
+
+content-length: 12953
+content-type: application/json
+date: Mon, 09 Dec 2024 10:22:19 GMT
+replit-cluster: pike
+server: Werkzeug/3.1.3 Python/3.11.9
+x-robots-tag: none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex
+
+{
+  "current_page": 2,
+  "results": [
+    {
+      "published_date": "10.2024",
+      "snippet": "Algorithms that require many different pairs of qubits to interact, such as in quantum volume circuits\u00a0[47], therefore only marginally benefit from distributing quantum computations. Specifically for data DQC, this means that algorithms in which the data stored at different quantum computers needs to be communicated between different parties a significant amount of times, are unsuitable for DQC. In DQC, each quantum device uses two types of qubits: Computation qubits used to perform the quantum algorithm; and, communication qubits used to communicate with other quantum devices. Distributed quantum computing does introduce an additional overhead, both in the number of required qubits, as well as in the communication between different devices. J. Lomonaco, \u201cGeneralized GHZ States and Distributed Quantum Computing,\u201d 2004.",
+      "title": "Distributed Quantum Computing: Applications and Challenges - arXiv.org",
+      "url": "https://arxiv.org/html/2410.00609v1"
+    },
+    {
+      "published_date": "04.2024",
+      "snippet": "summary, the advent of quantum computing is reshaping the cybersecurity landscape, introducing new challenges to traditional cryptographic methods and pushing the bound-aries of computational capabilities. Our study systematically identifies and assesses vulnerabilities and threats both before and after migration to quantum-safe algorithms",
+      "title": "PDF",
+      "url": "https://arxiv.org/pdf/2404.10659.pdf"
+    },
+    {
+      "published_date": "01.2022",
+      "snippet": "Quantum technology is full of figurative and literal noise obscuring its promise. In this overview, we will attempt to provide a sober assessment of the promise of quantum technology with a focus on computing. We provide a tour of quantum computing and quantum technology that is aimed to be comprehensible to scientists and engineers without becoming a popular account. The goal is not a",
+      "title": "[2201.09877v1] Quantum Computing 2022 - arXiv.org",
+      "url": "https://arxiv.org/abs/2201.09877v1"
+    },
+    {
+      "published_date": "04.2022",
+      "snippet": "Quantum computers can solve specific problems that are not feasible on \"classical\" hardware. Harvesting the speed-up provided by quantum computers therefore has the potential to change any industry which uses computation, including finance. First quantum applications for the financial industry involving optimization, simulation, and machine learning problems have already been proposed and",
+      "title": "A Structured Survey of Quantum Computing for the Financial Industry",
+      "url": "https://arxiv.org/abs/2204.10026"
+    },
+    {
+      "published_date": "03.2024",
+      "snippet": "Benchmarking models via classical simulations is one of the main ways to judge ideas in quantum machine learning before noise-free hardware is available. However, the huge impact of the experi- ... quantum computing devices which have the poten- ... code, built on the PennyLane software framework [11], is made available under https://github.com",
+      "title": "arXiv:2403.07059v2 [quant-ph] 14 Mar 2024",
+      "url": "https://arxiv.org/pdf/2403.07059"
+    },
+    {
+      "published_date": "04.2022",
+      "snippet": "Quantum computing has the potential to solve many computational problems exponentially faster than classical computers. The high shares of renewables and the wide deployment of converter-interfaced resources require new tools that shall drastically accelerate power system computations, including optimization and security assessment, which can benefit from quantum computing. To the best of our",
+      "title": "Quantum Computing for Power Flow Algorithms: Testing on real Quantum ...",
+      "url": "https://arxiv.org/abs/2204.14028"
+    },
+    {
+      "published_date": "07.2024",
+      "snippet": "In recent years, the rapid development of Quantum Computers has demonstrated their tremendous potential in solving problems that Classical Computer cannot address, such as NP and NP-hard problems [].Based on their functionality and application scenarios, Quantum Computers can be categorized into Universal Quantum Computers, Quantum Annealers, Quantum Machine Learning Accelerators, and others [].",
+      "title": "CRUISE on Quantum Computing for Feature Selection in Recommender Systems",
+      "url": "https://arxiv.org/html/2407.02839v1"
+    },
+    {
+      "published_date": "04.2024",
+      "snippet": "Quantum Computing Inc (QCI) introduced their Dirac-3 quantum system as a new approach in quantum computing through Entropy Quantum Computing (EQC) (QCI, ) to support higher-order interactions among qudits and leveraging entropy and noise, enabling operation at room temperature without cryogenic environment, and promising enhanced computing",
+      "title": "Quantum Cloud Computing: A Review, Open Problems, and Future Directions",
+      "url": "https://arxiv.org/html/2404.11420v1"
+    },
+    {
+      "published_date": "05.2022",
+      "snippet": "Architectures for quantum computing based on neutral atoms have risen to prominence as candidates for both near and long-term applications. These devices are particularly well suited to solve independent set problems, as the combinatorial constraints can be naturally encoded in the low-energy Hilbert space due to the Rydberg blockade mechanism. Here, we approach this connection with a focus on",
+      "title": "[2205.08500] Industry applications of neutral-atom quantum computing ...",
+      "url": "https://arxiv.org/abs/2205.08500"
+    },
+    {
+      "published_date": "05.2024",
+      "snippet": "Quantum circuit transpilation and optimization are central components of quantum computing workflows. Similar to compilers in classical computing, transpilers map logical quantum circuits to the instructions present physical quantum devices, and allow quantum circuit developers to focus on the quantum algorithms rather than specific details of the hardware.",
+      "title": "Practical and efficient quantum circuit synthesis and transpiling with ...",
+      "url": "https://arxiv.org/html/2405.13196v1"
+    },
+    {
+      "published_date": "06.2024",
+      "snippet": "(2023) Improves efficiency in processing complex data Need for more comprehensive exploration Hybrid Quantum-Classical Deep Learning Models Suryotrisongko, Musashi (2022) Comparable or superior accuracy in cybersecurity applications Sensitivity to initial conditions; optimization required Table 2: Case Studies and Applications Application Domain Study Model/Technique Key Findings Cybersecurity Suryotrisongko, Musashi (2022 Hybrid Quantum-Classical Model Achieved up to 94.7% accuracy in botnet detection Medical Image Analysis Wei et al. Conclusion Our review explored the current state of Quantum Machine Learning (QML), focusing on advances in algorithms (such as Quantum Kernel Logistic Regression and Quantum Support Vector Machines), potential applications in various fields (from strengthening cybersecurity to pioneering medical image analysis and improving industrial quality control), and existing challenges (hardware limitations and privacy concerns).",
+      "title": "Machine Learning Applications of Quantum Computing: A Review - arXiv.org",
+      "url": "https://arxiv.org/pdf/2406.13262"
+    },
+    {
+      "published_date": "06.2022",
+      "snippet": "Explosive increase of interest in quantum computing has resulted in various proposals for generation of quantum bits or qubits, the basic quantum computing unit. The superconducting qubits of Josephson Junction are the most widely accepted and currently used, while the Ion-trap and a similar molecule-based qubits have been proposed more recently. In these methods, each qubit is generated",
+      "title": "A New Approach to Quantum Computing Multi-Qubit Generation and ...",
+      "url": "https://arxiv.org/abs/2206.05932"
+    },
+    {
+      "published_date": "05.2024",
+      "snippet": "Table 3 compares performance metrics related to data throughput and error rates between traditional computing frameworks and Quantum-Edge Cloud Computing (QECC) across various Internet of Things 0.00% 0.05% 0.10% 0.15% 0.20% 0.25% 0.30% 0.35% 80 MB/sec 50 MB/sec 100 MB/sec 10 MB/sec 20 MB/sec Error Rate (Traditional) Data Throughput (Traditional) 0.00% 0.02% 0.04% 0.06% 0.08% 0.10% 0.12% 0.14% 0.16% 180 MB/sec 150 MB/sec 200 MB/sec 30 MB/sec 40 MB/sec Error Rate (QECC) Data Throughput (QECC) Cornell University arxiv.org 10 (IoT) applications. 5. Discussion The empirical data presented in the study demonstrates that Quantum Edge Cloud Computing (QECC) can significantly enhance processing speeds and reduce error rates in Internet of Things (IoT) applications when compared to traditional computing.",
+      "title": "Quantum-Edge Cloud Computing: A Future Paradigm for IoT Applications",
+      "url": "https://arxiv.org/pdf/2405.04824"
+    },
+    {
+      "published_date": "01.2018",
+      "snippet": "Abstract. Noisy Intermediate-Scale Quantum (NISQ) technology will be available in the near future. Quantum computers with 50-100 qubits may be able to perform tasks which surpass the capabilities of today's classical digital computers, but noise in quantum gates will limit the size of quantum circuits that can be executed reliably.",
+      "title": "[1801.00862] Quantum Computing in the NISQ era and beyond - ar5iv",
+      "url": "https://ar5iv.labs.arxiv.org/html/1801.00862"
+    },
+    {
+      "published_date": "04.2023",
+      "snippet": "and operation costs required for quantum models relative to classical models. However, with future advancements in quantum hardware technologies, the gap in training and operation costs between quantum and classical mod-els might become narrower. This highlights the potential of quantum computing and QML in advancing the field of image recognition.",
+      "title": "arXiv:2304.09224v2 [quant-ph] 28 Mar 2024",
+      "url": "https://arxiv.org/pdf/2304.09224"
+    },
+    {
+      "published_date": "11.2022",
+      "snippet": "Quantum neuromorphic computing (QNC) is a sub-field of quantum machine learning (QML) that capitalizes on inherent system dynamics. As a result, QNC can run on contemporary, noisy quantum hardware and is poised to realize challenging algorithms in the near term. One key issue in QNC is the characterization of the requisite dynamics for ensuring expressive quantum neuromorphic computation. We",
+      "title": "Expressive Quantum Perceptrons for Quantum Neuromorphic Computing",
+      "url": "https://arxiv.org/abs/2211.07075"
+    },
+    {
+      "published_date": "05.2024",
+      "snippet": "VQE, which combines quantum computing with a transformer-based language model. QiankunNet- VQE uses quantum computers to make the kernel part of system to become entanglement states, and then the transformer neural networks are used to perform the training and inference for the whole system. QiankunNet-VQE have several advantages: 1.",
+      "title": "Rapidly Achieving Chemical Accuracy with Quantum Computing Enforced ...",
+      "url": "https://arxiv.org/pdf/2405.09164"
+    },
+    {
+      "published_date": "09.2022",
+      "snippet": "Lloyd et al. were first to demonstrate the promise of quantum algorithms for computing Betti numbers, a way to characterize topological features of data sets. Here, we propose, analyze, and optimize an improved quantum algorithm for topological data analysis (TDA) with reduced scaling, including a method for preparing Dicke states based on inequality testing, a more efficient amplitude",
+      "title": "[2209.13581] Analyzing Prospects for Quantum Advantage in Topological ...",
+      "url": "https://arxiv.org/abs/2209.13581"
+    },
+    {
+      "published_date": "01.2024",
+      "snippet": "Quantum computer simulation packages The recent advances in quantum computing hardware has led to increased momentum in the development of software that can simulate quantum circuits, with many new software pack-ages appearing over the past 5 years. The development goals of these packages range from the validation of quantum hard-",
+      "title": "Benchmarking Quantum Computer Simulation Software Packages: State ...",
+      "url": "https://arxiv.org/pdf/2401.09076"
+    },
+    {
+      "published_date": "07.2024",
+      "snippet": "tuned for what is expected to be the next generation of quantum computers, in which different processors are interconnected to increase the total number of qubits, allowing for more complex computations. Index Terms\u2014Scalable Quantum Circuit Mapping, Quantum Computing Architecture, Multi-Core Quantum Computing Ar-chitecture, Quantum Compilation I.",
+      "title": "Route-Forcing: Scalable Quantum Circuit Mapping for Scalable Quantum ...",
+      "url": "https://arxiv.org/pdf/2407.17306"
+    }
+  ],
+  "status": "success",
+  "total": 88,
+  "total_pages": 5
+}
+

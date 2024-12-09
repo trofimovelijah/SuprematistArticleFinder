@@ -84,9 +84,11 @@ document.addEventListener('DOMContentLoaded', function() {
         let paginationHtml = '';
         
         for (let i = 1; i <= totalPages; i++) {
+            const isCurrentPage = i === currentPage;
             paginationHtml += `
-                <button class="page-button ${i === currentPage ? 'active' : ''}" 
-                        onclick="changePage(${i})">
+                <button class="page-button ${isCurrentPage ? 'active' : ''}" 
+                        onclick="changePage(${i})"
+                        ${isCurrentPage ? 'disabled' : ''}>
                     ${i}
                 </button>
             `;

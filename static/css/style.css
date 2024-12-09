@@ -253,9 +253,15 @@ body {
     color: var(--white);
 }
 
-.page-button.active {
+.page-button.active,
+.page-button:disabled {
     background-color: var(--primary-black);
     color: var(--white);
+    cursor: default;
+}
+
+.page-button:disabled:hover {
+    background-color: var(--primary-black);
 }
 
 .total-results {
