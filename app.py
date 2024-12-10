@@ -347,8 +347,23 @@ def export_results():
                 'error': 'Недопустимый ключ запроса'
             }), 400
 
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        
         # Получаем результаты из кэша
         results = search_cache[query_key]
+        
+        # Фильтруем по датам, если они указаны
+        if start_date and end_date:
+            # Валидация дат
+            dates_valid, date_error = validate_dates(start_date, end_date)
+            if not dates_valid:
+                return jsonify({
+                    'status': 'error',
+                    'error': date_error
+                }), 400
+                
+            results = filter_results_by_date(results, start_date, end_date)
         
         # Создаем CSV файл в памяти
         output = io.StringIO()

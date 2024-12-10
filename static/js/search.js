@@ -203,7 +203,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!searchState.query_key) return;
         
         const params = new URLSearchParams({
-            query_key: searchState.query_key
+            query_key: searchState.query_key,
+            start_date: startDate.value,
+            end_date: endDate.value
         });
         
         window.location.href = `/export?${params.toString()}`;
