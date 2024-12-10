@@ -9,9 +9,12 @@ import requests
 from flask import Flask, request, jsonify, render_template, Response
 from googletrans import Translator, LANGUAGES
 
-# Настройка логирования
+# Настройка логирования для отладки приложения
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+# Инициализация Flask приложения
+app = Flask(__name__)
 
 app = Flask(__name__)
 
@@ -25,7 +28,15 @@ translator = Translator()
 
 def translate_search_query(query):
     """
-    Переводит поисковый запрос и возвращает кортеж (оригинальный запрос, переведенный запрос)
+    Переводит поисковый запрос на русский/английский язык в зависимости от исходного языка.
+    
+    Args:
+        query (str): Исходный поисковый запрос
+        
+    Returns:
+        tuple: Кортеж (оригинальный запрос, переведенный запрос)
+               Оригинальный запрос дополняется префиксом 'site:arxiv.org'
+               В случае ошибки перевода, возвращается только оригинальный запрос и None
     """
     try:
         # Определяем язык запроса

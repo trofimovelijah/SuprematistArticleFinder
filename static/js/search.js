@@ -1,23 +1,33 @@
+/**
+ * Главный JavaScript файл для управления поиском статей
+ * Обеспечивает функциональность поиска, фильтрации и отображения результатов
+ */
+
 document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    const searchButton = document.getElementById('searchButton');
-    const resultsContainer = document.getElementById('searchResults');
-    const totalResults = document.getElementById('totalResults');
-    const paginationContainer = document.getElementById('pagination');
-    const loadingIndicator = document.getElementById('loadingIndicator');
-    const startDate = document.getElementById('startDate');
-    const endDate = document.getElementById('endDate');
+    // Получение ссылок на DOM элементы
+    const searchInput = document.getElementById('searchInput');        // Поле ввода поискового запроса
+    const searchButton = document.getElementById('searchButton');      // Кнопка поиска
+    const resultsContainer = document.getElementById('searchResults'); // Контейнер результатов
+    const totalResults = document.getElementById('totalResults');      // Счетчик результатов
+    const paginationContainer = document.getElementById('pagination'); // Пагинация
+    const loadingIndicator = document.getElementById('loadingIndicator'); // Индикатор загрузки
+    const startDate = document.getElementById('startDate');           // Начальная дата фильтра
+    const endDate = document.getElementById('endDate');               // Конечная дата фильтра
 
     let currentPage = 1;
+    // Состояние поиска для хранения результатов и метаданных
     let searchState = {
-        results: [],
-        total: 0,
-        currentPage: 1,
-        total_pages: 0,
-        query_key: '',
-        query: ''
+        results: [],          // Массив результатов поиска
+        total: 0,            // Общее количество результатов
+        currentPage: 1,      // Текущая страница
+        total_pages: 0,      // Общее количество страниц
+        query_key: '',       // Ключ запроса для кэширования
+        query: ''            // Текст поискового запроса
     };
 
+    /**
+     * Показывает индикатор загрузки и очищает контейнеры результатов
+     */
     function showLoading() {
         loadingIndicator.style.display = 'flex';
         resultsContainer.innerHTML = '';
