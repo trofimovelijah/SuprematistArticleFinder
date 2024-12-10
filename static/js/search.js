@@ -39,12 +39,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function displayResults(results) {
         resultsContainer.innerHTML = results
-            .map(result => {
+            .map((result, index) => {
                 const date = result.published_date || 'Дата не указана';
                 const snippet = result.snippet || 'Описание отсутствует';
+                const icons = [
+                    '/static/images/malevich/square.jpg',
+                    '/static/images/malevich/cross.jpg',
+                    '/static/images/malevich/circle.jpg'
+                ];
+                const iconIndex = index % 3;
                 return `
                     <div class="result-item">
-                        <h3><a href="${result.url}" target="_blank">${result.title}</a></h3>
+                        <h3>
+                            <img src="${icons[iconIndex]}" alt="Malevich Icon" class="malevich-icon">
+                            <a href="${result.url}" target="_blank">${result.title}</a>
+                        </h3>
                         <div class="result-date">Дата публикации: ${date}</div>
                         <p class="result-snippet">${snippet}</p>
                     </div>
