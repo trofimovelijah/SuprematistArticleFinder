@@ -318,6 +318,12 @@ body {
     transform: translateY(-1px);
 }
 
+.export-hint {
+    font-size: 0.8rem;
+    color: #666;
+    margin-left: 0.5rem;
+}
+
 @media (max-width: 1200px) {
     .search-controls {
         flex-direction: column;
