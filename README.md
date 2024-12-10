@@ -54,10 +54,11 @@
 
 3. **Настройка переменных окружения**
    - Создайте файл `.env` в корневой директории
-   - Добавьте ваш API ключ Tavily:
+   - Добавьте ваш API ключ Tavily (без кавычек):
      ```
      TAVILY_API_KEY=your_api_key_here
      ```
+   Приложение автоматически загрузит переменные окружения из файла `.env` при запуске благодаря использованию python-dotenv.
 
 4. **Запуск приложения**
    ```bash
@@ -77,8 +78,10 @@
 
 3. **Запуск контейнера**
    ```bash
-   docker run -p 5000:5000 -e TAVILY_API_KEY=your_api_key_here suprematist-article-finder
+   docker run -p 5000:5000 -e TAVILY_API_KEY=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 suprematist-article-finder
    ```
+   
+   Обратите внимание: API ключ указывается без кавычек.
    
    Приложение будет доступно по адресу: http://localhost:5000
 

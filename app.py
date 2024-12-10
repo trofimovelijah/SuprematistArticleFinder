@@ -8,6 +8,10 @@ from datetime import datetime, date
 import requests
 from flask import Flask, request, jsonify, render_template, Response
 from googletrans import Translator, LANGUAGES
+from dotenv import load_dotenv
+
+# Загружаем переменные окружения из .env файла
+load_dotenv()
 
 # Настройка логирования для отладки приложения
 logging.basicConfig(level=logging.DEBUG)
