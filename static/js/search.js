@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const iconIndex = index % 3;
                 return `
                     <div class="result-item">
-                        <img src="${icons[iconIndex]}" alt="Malevich Icon" class="malevich-icon">
+                        <img src="${icons[iconIndex]}" alt="Malevich Icon" class="malevich-icon" width="36" height="36">
                         <div class="content">
                             <h3>
                                 <a href="${result.url}" target="_blank">${result.title}</a>
