@@ -287,13 +287,19 @@ body {
     background-color: var(--primary-black);
 }
 
-.total-results {
 .results-header {
     display: flex;
     justify-content: flex-start;
     align-items: center;
     gap: 1rem;
     margin-bottom: 2rem;
+}
+
+.total-results {
+    text-align: left;
+    font-size: 1.2rem;
+    color: var(--primary-black);
+    margin: 0;
 }
 
 .export-button {
@@ -310,11 +316,6 @@ body {
 .export-button:hover {
     background-color: var(--primary-orange);
     transform: translateY(-1px);
-}
-    text-align: left;
-    margin-bottom: 2rem;
-    font-size: 1.2rem;
-    color: var(--primary-black);
 }
 
 @media (max-width: 1200px) {
