@@ -293,6 +293,8 @@ body {
     align-items: center;
     gap: 1rem;
     margin-bottom: 2rem;
+    position: relative;
+    padding-right: 150px;
 }
 
 .total-results {
@@ -311,7 +313,9 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 0.9rem;
-    margin-left: auto;
+    position: absolute;
+    right: 0;
+    top: 0;
 }
 
 .export-button:hover {
