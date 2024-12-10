@@ -40,6 +40,8 @@
 
 ## Локальное развертывание
 
+### Запуск с помощью Python
+
 1. **Требования**
    ```bash
    Python 3.11
@@ -62,6 +64,25 @@
    python main.py
    ```
    Приложение будет доступно по адресу: http://localhost:5000
+
+### Запуск с помощью Docker
+
+1. **Требования**
+   - Docker
+
+2. **Сборка образа**
+   ```bash
+   docker build -t suprematist-article-finder .
+   ```
+
+3. **Запуск контейнера**
+   ```bash
+   docker run -p 5000:5000 -e TAVILY_API_KEY=your_api_key_here suprematist-article-finder
+   ```
+   
+   Приложение будет доступно по адресу: http://localhost:5000
+
+Примечание: При запуске через Docker убедитесь, что вы передали корректный TAVILY_API_KEY через переменную окружения при запуске контейнера.
 
 ## API Endpoints
 
