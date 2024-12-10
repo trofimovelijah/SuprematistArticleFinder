@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
         totalResults.textContent = '';
         paginationContainer.innerHTML = '';
         exportButton.style.display = 'none';
+        document.querySelector('.export-hint').style.display = 'none';
     }
 
     function hideLoading() {
@@ -216,7 +217,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Функция для управления видимостью кнопки экспорта
     function updateExportButtonVisibility(total) {
-        exportButton.style.display = total > 0 ? 'block' : 'none';
+        const displayStyle = total > 0 ? 'block' : 'none';
+        exportButton.style.display = displayStyle;
+        document.querySelector('.export-hint').style.display = displayStyle;
     }
 
     window.changePage = function(page) {
