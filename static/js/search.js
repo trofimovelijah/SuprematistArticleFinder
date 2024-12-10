@@ -43,9 +43,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 const date = result.published_date || 'Дата не указана';
                 const snippet = result.snippet || 'Описание отсутствует';
                 const icons = [
-                    '/static/images/malevich/square.jpg',
-                    '/static/images/malevich/cross.jpg',
-                    '/static/images/malevich/circle.jpg'
+                    '/static/images/malevich/square.svg',
+                    '/static/images/malevich/cross.svg',
+                    '/static/images/malevich/circle.svg'
                 ];
                 const iconIndex = index % 3;
                 return `
