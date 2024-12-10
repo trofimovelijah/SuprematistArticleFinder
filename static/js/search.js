@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
         resultsContainer.innerHTML = '';
         totalResults.textContent = '';
         paginationContainer.innerHTML = '';
+        exportButton.style.display = 'none';
     }
 
     function hideLoading() {
