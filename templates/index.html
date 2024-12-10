@@ -19,6 +19,11 @@
                         <span>—</span>
                         <input type="date" id="endDate" class="form-control" max="{{ today }}">
                     </div>
+                    <select id="sortOrder" class="form-control">
+                        <option value="relevance">По релевантности</option>
+                        <option value="date_desc">Сначала новые</option>
+                        <option value="date_asc">Сначала старые</option>
+                    </select>
                     <button id="searchButton" class="btn">Поиск</button>
                 </div>
             </div>

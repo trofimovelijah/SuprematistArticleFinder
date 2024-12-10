@@ -90,6 +90,17 @@ def validate_dates(start_date, end_date):
     except ValueError:
         return False, 'Неверный формат даты'
 
+def sort_results(results, sort_order):
+    """Сортировка результатов"""
+    if sort_order == 'date_desc':
+        return sorted(results, 
+                     key=lambda x: datetime.strptime(x.get('published_date', '01.1900'), '%m.%Y'),
+                     reverse=True)
+    elif sort_order == 'date_asc':
+        return sorted(results, 
+                     key=lambda x: datetime.strptime(x.get('published_date', '01.1900'), '%m.%Y'))
+    return results  # По умолчанию возвращаем по релевантности
+
 def filter_results_by_date(results, start_date, end_date):
     """Фильтрация результатов по датам"""
     if not (start_date or end_date):

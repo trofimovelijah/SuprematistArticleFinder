@@ -149,12 +149,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const start = startDate.value;
         const end = endDate.value;
         const page = currentPage;
+        const sortOrder = document.getElementById('sortOrder').value;
 
         showLoading();
 
         const params = new URLSearchParams({
             query_key: searchState.query_key,
-            page: page
+            page: page,
+            sort: sortOrder
         });
 
         // Если указана только начальная дата, то конечная = текущая
@@ -214,6 +216,12 @@ document.addEventListener('DOMContentLoaded', function() {
     endDate.addEventListener('change', function() {
         if (searchState.query_key) {
             applyFilters();
+    // Добавляем обработчик изменения сортировки
+    document.getElementById('sortOrder').addEventListener('change', function() {
+        if (searchState.query_key) {
+            applyFilters();
+        }
+    });
         }
     });
 

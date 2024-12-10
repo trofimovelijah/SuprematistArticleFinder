@@ -79,16 +79,25 @@
    - Python 3.11 (установится автоматически в контейнере)
 
 2. **Подготовка к сборке**
-   Все необходимые зависимости уже указаны в Dockerfile, дополнительных действий не требуется.
+   - Убедитесь, что у вас есть все необходимые файлы проекта:
+     - app.py (основной файл приложения)
+     - main.py (точка входа)
+     - папка static с CSS, JS и изображениями
+     - папка templates с HTML шаблонами
+   - Все зависимости автоматически установятся при сборке образа
 
 3. **Сборка образа**
    ```bash
+   # Убедитесь, что вы находитесь в корневой директории проекта
    docker build -t suprematist-article-finder .
+   
+   # Проверьте, что образ успешно создан
+   docker images | grep suprematist-article-finder
    ```
 
 4. **Запуск контейнера**
    ```bash
-   docker run -p 5000:5000 -e TAVILY_API_KEY=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 suprematist-article-finder
+   docker run -p 5000:5000 -e TAVILY_API_KEY=your_api_key_here suprematist-article-finder
    ```
    
    Важные замечания по запуску:
