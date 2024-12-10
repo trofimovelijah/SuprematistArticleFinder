@@ -1,0 +1,31 @@
+ocker build -t suprematist-article-finder .
+[+] Building 2.9s (7/9)                                                                   docker:default
+ => [internal] load build definition from Dockerfile                                                0.0s
+ => => transferring dockerfile: 672B                                                                0.0s
+ => [internal] load metadata for docker.io/library/python:3.11-slim                                 1.9s
+ => [internal] load .dockerignore                                                                   0.0s
+ => => transferring context: 2B                                                                     0.0s
+ => CANCELED [1/5] FROM docker.io/library/python:3.11-slim@sha256:370c586a6ffc8c619e6d652f81c094b3  0.4s
+ => => resolve docker.io/library/python:3.11-slim@sha256:370c586a6ffc8c619e6d652f81c094b34b14b8f2f  0.0s
+ => => sha256:370c586a6ffc8c619e6d652f81c094b34b14b8f2fb9251f092de23f16e299b78 9.13kB / 9.13kB      0.0s
+ => => sha256:b88b6b440e33679874d4f16011be1b5350406fb923b847d19d58d8bcd8099896 1.75kB / 1.75kB      0.0s
+ => => sha256:533df8de4eb83c1265bfb78f65b87dc9b45afbca418babfbed108c5c2497a322 5.29kB / 5.29kB      0.0s
+ => => sha256:bc0965b23a04fe7f2d9fb20f597008fcf89891de1c705ffc1c80483a1f098e4f 0B / 28.23MB         0.9s
+ => => sha256:3a75594a45d1452af40f08d7e4d4fa96572c3a09fb46ae142cf45e98973b3c69 0B / 3.32MB          0.9s
+ => => sha256:51e2bd9c4b085ec5483ea37c7aff2b4fa3e49a780ff4db8f971fa68c9539db9c 0B / 16.20MB         0.9s
+ => [internal] load build context                                                                   0.4s
+ => => transferring context: 34.81MB                                                                0.3s
+ => CACHED [2/5] WORKDIR /app                                                                       0.0s
+ => ERROR [3/5] COPY requirements.txt .                                                             0.0s
+------
+ > [3/5] COPY requirements.txt .:
+------
+Dockerfile:8
+--------------------
+   6 |     
+   7 |     # Копируем файлы зависимостей
+   8 | >>> COPY requirements.txt .
+   9 |     
+  10 |     # Устанавливаем зависимости
+--------------------
+ERROR: failed to solve: failed to compute cache key: failed to calculate checksum of ref VVXD:222T:QF73:TNI4:BUTA:2XXP:T6ZY:DXF7:CYC7:7GXB:TYLA:ERQG::8w29nbv7aqla4gdkwgvlx0rtl: "/requirements.txt": not found
