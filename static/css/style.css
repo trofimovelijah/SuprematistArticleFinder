@@ -327,6 +327,10 @@ body {
     font-size: 0.4rem;
     color: #666;
     margin-left: 0.5rem;
+    position: absolute;
+    right: 0;
+    top: 30px;
+    white-space: nowrap;
 }
 
 @media (max-width: 1200px) {
