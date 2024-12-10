@@ -289,16 +289,22 @@ body {
 
 .results-header {
 .malevich-icon {
-    width: 20px;
-    height: 20px;
+    width: 4px;
+    height: 4px;
     margin-right: 10px;
     vertical-align: middle;
     object-fit: contain;
 }
 
-.result-item h3 {
+.result-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.result-item .content {
+    flex: 1;
 }
     display: flex;
     justify-content: flex-start;

@@ -50,12 +50,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 const iconIndex = index % 3;
                 return `
                     <div class="result-item">
-                        <h3>
-                            <img src="${icons[iconIndex]}" alt="Malevich Icon" class="malevich-icon">
-                            <a href="${result.url}" target="_blank">${result.title}</a>
-                        </h3>
-                        <div class="result-date">Дата публикации: ${date}</div>
-                        <p class="result-snippet">${snippet}</p>
+                        <img src="${icons[iconIndex]}" alt="Malevich Icon" class="malevich-icon">
+                        <div class="content">
+                            <h3>
+                                <a href="${result.url}" target="_blank">${result.title}</a>
+                            </h3>
+                            <div class="result-date">Дата публикации: ${date}</div>
+                            <p class="result-snippet">${snippet}</p>
+                        </div>
                     </div>
                 `;
             })
