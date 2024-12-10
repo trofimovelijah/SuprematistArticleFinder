@@ -330,7 +330,9 @@ body {
     position: absolute;
     right: 100px;
     top: 5px;
-    white-space: nowrap;
+    white-space: normal;
+    text-align: right;
+    line-height: 1.2;
 }
 
 @media (max-width: 1200px) {
