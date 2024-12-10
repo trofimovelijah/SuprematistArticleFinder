@@ -328,8 +328,8 @@ body {
     color: #666;
     margin-left: 0.5rem;
     position: absolute;
-    right: 0;
-    top: 30px;
+    right: 100px;
+    top: 5px;
     white-space: nowrap;
 }
 
